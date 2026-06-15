@@ -330,6 +330,43 @@ html,body{height:100%;background:linear-gradient(160deg,#F5C9A0 0%,#F0B882 40%,#
           </div>
         </div>
         <div class="cb-section"><div class="cb-title">By Category</div><div id="cb-list"></div></div>
+
+        <!-- Shopping summary -->
+        <div class="cb-section" style="padding-top:0;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+            <div class="cb-title" style="margin-bottom:0;">🛒 Shopping List</div>
+            <span class="s-link" onclick="navTo('s-shop')" style="font-size:13px;">View all →</span>
+          </div>
+          <!-- spend summary card -->
+          <div style="background:#fff;border-radius:var(--r16);padding:16px;margin-bottom:10px;box-shadow:0 2px 8px rgba(61,43,26,0.06);">
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px;">
+              <div style="text-align:center;background:var(--peach-d);border-radius:12px;padding:10px 6px;">
+                <div style="font-size:20px;font-weight:800;color:var(--brown);" id="pr-sh-tot">0</div>
+                <div style="font-size:10px;font-weight:600;color:var(--brown-xl);text-transform:uppercase;letter-spacing:0.4px;">Items</div>
+              </div>
+              <div style="text-align:center;background:var(--peach-d);border-radius:12px;padding:10px 6px;">
+                <div style="font-size:20px;font-weight:800;color:var(--brown);" id="pr-sh-left">0</div>
+                <div style="font-size:10px;font-weight:600;color:var(--brown-xl);text-transform:uppercase;letter-spacing:0.4px;">To Buy</div>
+              </div>
+              <div style="text-align:center;background:var(--green-pale);border-radius:12px;padding:10px 6px;">
+                <div style="font-size:20px;font-weight:800;color:var(--green);" id="pr-sh-cost">$0</div>
+                <div style="font-size:10px;font-weight:600;color:var(--brown-xl);text-transform:uppercase;letter-spacing:0.4px;">Est. Cost</div>
+              </div>
+            </div>
+            <!-- bought progress bar -->
+            <div style="display:flex;justify-content:space-between;font-size:11px;font-weight:600;color:var(--brown-xl);margin-bottom:6px;">
+              <span id="pr-sh-bar-lbl">0 bought</span><span id="pr-sh-bar-r">of 0 items</span>
+            </div>
+            <div class="prog"><div class="prog-bar" id="pr-sh-bar" style="width:0%;background:linear-gradient(90deg,#3B82C4,#7BB8F0);"></div></div>
+          </div>
+          <!-- per-store breakdown -->
+          <div id="pr-store-list"></div>
+          <!-- empty state -->
+          <div id="pr-sh-empty" style="display:none;text-align:center;padding:20px;color:var(--brown-xl);font-size:13px;">
+            No shopping items yet — tap 🛒 to add some!
+          </div>
+        </div>
+        <div style="height:16px;"></div>
       </div>
     </div>
 
@@ -685,6 +722,40 @@ function renderStats(){
     const ci=items.filter(x=>x.category_id===c.id);if(!ci.length)return'';
     const dp=ci.filter(x=>x.packed).length;const p=Math.round(dp/ci.length*100);
     return`<div class="cb-card"><div class="cb-row"><div class="cb-ic">${c.icon||'📦'}</div><span class="cb-nm">${esc(c.name)}</span><span class="cb-p">${p}%</span></div><div class="cb-tr"><div class="cb-fi" style="width:${p}%;"></div></div></div>`;
+  }).join('');
+
+  // Shopping summary
+  const shTot=shopItems.length;
+  const shBought=shopItems.filter(i=>i.bought).length;
+  const shLeft=shTot-shBought;
+  const shCost=shopItems.filter(i=>!i.bought&&i.price).reduce((s,i)=>s+(i.price*i.quantity),0);
+  const shPct=shTot?Math.round(shBought/shTot*100):0;
+  document.getElementById('pr-sh-tot').textContent=shTot;
+  document.getElementById('pr-sh-left').textContent=shLeft;
+  document.getElementById('pr-sh-cost').textContent='$'+shCost.toFixed(2);
+  document.getElementById('pr-sh-bar').style.width=shPct+'%';
+  document.getElementById('pr-sh-bar-lbl').textContent=shBought+' bought';
+  document.getElementById('pr-sh-bar-r').textContent='of '+shTot+' items';
+
+  // per-store breakdown
+  const storeEl=document.getElementById('pr-store-list');
+  const emptyEl=document.getElementById('pr-sh-empty');
+  if(!shTot){storeEl.innerHTML='';emptyEl.style.display='block';return;}
+  emptyEl.style.display='none';
+  const storeGrps={};
+  shopItems.forEach(it=>{const k=it.store||'No Store';if(!storeGrps[k])storeGrps[k]=[];storeGrps[k].push(it);});
+  storeEl.innerHTML=Object.entries(storeGrps).sort(([a],[b])=>a.localeCompare(b)).map(([store,gitems])=>{
+    const storeBought=gitems.filter(i=>i.bought).length;
+    const storeTotal=gitems.reduce((s,i)=>s+(i.price?i.price*i.quantity:0),0);
+    const storePct=gitems.length?Math.round(storeBought/gitems.length*100):0;
+    return`<div class="cb-card" style="margin-bottom:8px;">
+      <div class="cb-row">
+        <div class="cb-ic" style="background:#EBF2FB;">🏪</div>
+        <div style="flex:1;"><span class="cb-nm">${esc(store)}</span><div style="font-size:11px;color:var(--brown-xl);margin-top:1px;">${gitems.length} item${gitems.length!==1?'s':''} · ${storeBought} bought</div></div>
+        <div style="text-align:right;"><div style="font-size:13px;font-weight:800;color:var(--green);">$${storeTotal.toFixed(2)}</div><div style="font-size:11px;color:var(--brown-xl);">${storePct}%</div></div>
+      </div>
+      <div class="cb-tr"><div class="cb-fi" style="width:${storePct}%;background:#3B82C4;"></div></div>
+    </div>`;
   }).join('');
 }
 
