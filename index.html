@@ -1,0 +1,1063 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Camp Pack</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{
+  height:100%;
+  background:linear-gradient(160deg,#F5C9A0 0%,#F0B882 40%,#E8A86A 100%);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Plus Jakarta Sans',sans-serif;
+  min-height:100vh;
+}
+
+/* ── Phone shell ── */
+.phone{
+  width:390px;height:844px;
+  background:#FEF6EC;
+  border-radius:52px;
+  box-shadow:
+    0 0 0 2px #D4904A,
+    0 0 0 11px #2A1A0A,
+    0 0 0 13px #444,
+    0 50px 100px rgba(0,0,0,0.5);
+  overflow:hidden;
+  position:relative;
+  display:flex;flex-direction:column;
+}
+/* notch */
+.phone::before{
+  content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);
+  width:126px;height:37px;
+  background:#2A1A0A;
+  border-radius:0 0 22px 22px;
+  z-index:300;
+}
+
+/* ── Status bar ── */
+.sbar{
+  height:50px;flex-shrink:0;
+  display:flex;align-items:flex-end;justify-content:space-between;
+  padding:0 28px 8px;
+  position:relative;z-index:20;
+  font-size:13px;font-weight:700;
+  transition:color 0.3s;
+}
+.sbar.on-green{color:#fff;}
+.sbar.on-cream{color:#3D2B1A;}
+.sb-r{display:flex;gap:5px;align-items:center;font-size:12px;}
+
+/* ── Screen container ── */
+.screens{flex:1;position:relative;overflow:hidden;}
+.screen{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;
+  opacity:0;pointer-events:none;
+  transform:translateX(100%);
+  transition:opacity 0.25s ease,transform 0.3s cubic-bezier(.4,0,.2,1);
+  background:#FEF6EC;
+  overflow:hidden;
+}
+.screen.active{opacity:1;pointer-events:all;transform:translateX(0);}
+.screen.prev{transform:translateX(-28%);opacity:0.4;}
+
+/* ── Scroll pane ── */
+.scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+.scroll::-webkit-scrollbar{display:none;}
+
+/* ── Bottom nav ── */
+.bnav{
+  height:82px;
+  background:#fff;
+  border-radius:28px 28px 0 0;
+  display:flex;align-items:flex-start;
+  padding:12px 8px 0;
+  gap:0;
+  box-shadow:0 -4px 24px rgba(0,0,0,0.08);
+  flex-shrink:0;z-index:100;
+}
+.ni{
+  flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;
+  background:none;border:none;cursor:pointer;
+  font-family:'Plus Jakarta Sans',sans-serif;
+  padding:4px 0;transition:all 0.15s;
+}
+.ni-icon{
+  width:40px;height:40px;border-radius:14px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:20px;transition:all 0.2s;
+}
+.ni.active .ni-icon{background:#4A7C59;transform:scale(1.05);}
+.ni-lbl{font-size:10px;font-weight:600;color:#BBA896;}
+.ni.active .ni-lbl{color:#4A7C59;}
+
+/* FAB */
+.ni-fab{
+  width:52px;height:52px;
+  background:#4A7C59;
+  border-radius:18px;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;flex-shrink:0;
+  margin-top:-18px;
+  box-shadow:0 6px 20px rgba(74,124,89,0.45);
+  font-size:26px;color:#fff;
+  border:none;
+  transition:transform 0.15s,box-shadow 0.15s;
+  font-family:'Plus Jakarta Sans',sans-serif;
+}
+.ni-fab:active{transform:scale(0.94);}
+
+/* ══════════════════════════════════
+   DESIGN TOKENS
+══════════════════════════════════ */
+:root{
+  --green:#4A7C59;
+  --green-d:#2E5C3A;
+  --green-l:#7BAF8A;
+  --green-pale:#EEF5F1;
+  --peach:#FEF6EC;
+  --peach-d:#F5E4CF;
+  --peach-dk:#E8C99A;
+  --brown:#3D2B1A;
+  --brown-l:#8B6E52;
+  --brown-xl:#BBA896;
+  --red:#E05A4E;
+  --yellow:#F2A52B;
+  --r20:20px;--r16:16px;--r12:12px;--r8:8px;
+  --card-shadow:0 2px 12px rgba(61,43,26,0.08);
+  --card-shadow-lg:0 8px 30px rgba(61,43,26,0.12);
+}
+
+/* ══════════════════════════════════
+   SHARED COMPONENTS
+══════════════════════════════════ */
+.card{
+  background:#fff;border-radius:var(--r20);
+  padding:16px 18px;
+  box-shadow:var(--card-shadow);
+}
+.pill{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:6px 14px;border-radius:40px;
+  font-size:12px;font-weight:600;
+  cursor:pointer;transition:all 0.15s;
+}
+.pill-green{background:#4A7C59;color:#fff;}
+.pill-outline{background:#fff;border:1.5px solid #E8D5C0;color:var(--brown-l);}
+.pill-outline.active{background:#4A7C59;color:#fff;border-color:#4A7C59;}
+
+.section-hdr{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 20px;margin-bottom:12px;
+}
+.s-title{font-size:16px;font-weight:800;color:var(--brown);}
+.s-link{font-size:13px;font-weight:600;color:var(--green);}
+
+.btn-primary{
+  background:#4A7C59;color:#fff;
+  border:none;border-radius:var(--r16);
+  padding:14px 20px;
+  font-family:'Plus Jakarta Sans',sans-serif;
+  font-size:15px;font-weight:700;
+  cursor:pointer;width:100%;
+  transition:background 0.15s,transform 0.1s;
+}
+.btn-primary:hover{background:#3B6347;}
+.btn-primary:active{transform:scale(0.98);}
+.btn-primary:disabled{opacity:0.45;cursor:default;}
+
+/* ══════════════════════════════════
+   SCREEN: HOME
+══════════════════════════════════ */
+.s-home .hero{
+  background:#4A7C59;
+  padding:12px 22px 90px;
+  position:relative;overflow:hidden;
+  min-height:200px;
+}
+/* illustrated sky blobs */
+.hero-blob{
+  position:absolute;border-radius:50%;background:rgba(255,255,255,0.1);
+}
+.hero-b1{width:120px;height:120px;top:-30px;right:-20px;}
+.hero-b2{width:70px;height:70px;top:20px;right:80px;background:rgba(255,255,255,0.07);}
+.hero-trees{
+  position:absolute;bottom:0;right:0;
+  font-size:64px;line-height:1;opacity:0.18;
+  letter-spacing:-8px;
+}
+.hero-hi{font-size:14px;font-weight:600;color:rgba(255,255,255,0.7);}
+.hero-name{font-size:26px;font-weight:800;color:#fff;letter-spacing:-0.5px;margin-top:3px;}
+
+/* search */
+.home-search{
+  display:flex;align-items:center;gap:10px;
+  background:rgba(255,255,255,0.18);
+  border-radius:50px;padding:11px 16px;
+  margin-top:16px;
+}
+.home-search span{font-size:15px;}
+.home-search input{
+  flex:1;background:transparent;border:none;outline:none;
+  font-family:'Plus Jakarta Sans',sans-serif;
+  font-size:14px;color:#fff;
+}
+.home-search input::placeholder{color:rgba(255,255,255,0.6);}
+
+/* floating card overlap */
+.home-float{
+  margin:0 16px;margin-top:-68px;
+  position:relative;z-index:2;
+}
+.hf-card{
+  background:#fff;border-radius:22px;
+  padding:18px 20px;
+  box-shadow:0 10px 40px rgba(61,43,26,0.14);
+}
+.hf-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.hf-label{font-size:12px;font-weight:600;color:var(--brown-xl);text-transform:uppercase;letter-spacing:0.6px;}
+.hf-pct{font-size:32px;font-weight:800;color:var(--green);}
+.hf-stats{display:flex;gap:16px;}
+.hfs{text-align:center;}
+.hfs-v{font-size:20px;font-weight:800;color:var(--brown);}
+.hfs-l{font-size:10px;font-weight:600;color:var(--brown-xl);text-transform:uppercase;letter-spacing:0.5px;}
+.prog{height:8px;background:#F0E8DC;border-radius:4px;overflow:hidden;}
+.prog-bar{height:100%;background:linear-gradient(90deg,#4A7C59,#7BAF8A);border-radius:4px;transition:width 0.5s cubic-bezier(.4,0,.2,1);}
+
+/* category bubbles */
+.cat-bubbles{
+  display:flex;gap:14px;overflow-x:auto;
+  padding:0 20px 4px;
+  -ms-overflow-style:none;scrollbar-width:none;
+}
+.cat-bubbles::-webkit-scrollbar{display:none;}
+.cat-bubble{
+  flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:6px;
+  cursor:pointer;
+}
+.cb-icon-wrap{
+  width:64px;height:64px;border-radius:22px;
+  background:#fff;
+  display:flex;align-items:center;justify-content:center;
+  font-size:28px;
+  box-shadow:var(--card-shadow);
+  transition:transform 0.15s,box-shadow 0.15s;
+  position:relative;
+}
+.cb-icon-wrap:active{transform:scale(0.94);}
+.cb-badge{
+  position:absolute;top:-5px;right:-5px;
+  width:20px;height:20px;background:var(--green);border-radius:50%;
+  font-size:10px;font-weight:700;color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  border:2px solid var(--peach);
+}
+.cb-name{font-size:11px;font-weight:600;color:var(--brown-l);text-align:center;line-height:1.2;}
+
+/* recent items */
+.ri-card{
+  display:flex;align-items:center;gap:12px;
+  background:#fff;border-radius:var(--r16);
+  padding:13px 16px;margin-bottom:8px;
+  box-shadow:0 2px 8px rgba(61,43,26,0.06);
+  cursor:pointer;transition:transform 0.12s;
+}
+.ri-card:active{transform:scale(0.99);}
+.ri-chk{
+  width:24px;height:24px;border-radius:8px;
+  border:2px solid #E8D5C0;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  transition:all 0.15s;font-size:13px;font-weight:700;
+}
+.ri-chk.done{background:var(--green);border-color:var(--green);color:#fff;}
+.ri-name{font-size:14px;font-weight:600;color:var(--brown);flex:1;transition:color 0.15s;}
+.ri-cat{font-size:11px;color:var(--brown-xl);margin-top:1px;}
+.ri-packed .ri-name{text-decoration:line-through;color:var(--brown-xl);}
+.ess-tag{
+  font-size:10px;font-weight:700;
+  background:#FFF3E0;color:#E07A20;
+  padding:3px 9px;border-radius:20px;
+  border:1.5px solid #F5C878;
+  white-space:nowrap;
+}
+
+/* ══════════════════════════════════
+   SCREEN: PACK LIST
+══════════════════════════════════ */
+.s-pack .pl-header{
+  background:#fff;
+  padding:14px 20px 0;
+  border-radius:0 0 24px 24px;
+  box-shadow:0 2px 12px rgba(61,43,26,0.07);
+}
+.pl-title{font-size:22px;font-weight:800;color:var(--brown);letter-spacing:-0.4px;}
+.pl-sub{font-size:13px;color:var(--brown-xl);margin-top:2px;padding-bottom:12px;}
+.pl-search{
+  display:flex;align-items:center;gap:8px;
+  background:var(--peach-d);border-radius:14px;
+  padding:10px 14px;margin:0 0 12px;
+}
+.pl-search input{
+  flex:1;border:none;background:transparent;
+  font-family:'Plus Jakarta Sans',sans-serif;
+  font-size:14px;color:var(--brown);outline:none;
+}
+.pl-search input::placeholder{color:var(--brown-xl);}
+.pl-chips{
+  display:flex;gap:7px;overflow-x:auto;padding-bottom:14px;
+  -ms-overflow-style:none;scrollbar-width:none;
+}
+.pl-chips::-webkit-scrollbar{display:none;}
+
+/* group header */
+.grp-hdr{
+  display:flex;align-items:center;gap:8px;
+  padding:16px 20px 8px;
+}
+.grp-icon{
+  width:34px;height:34px;border-radius:11px;
+  background:var(--green-pale);
+  display:flex;align-items:center;justify-content:center;font-size:18px;
+}
+.grp-name{font-size:14px;font-weight:700;color:var(--brown);flex:1;}
+.grp-cnt{font-size:12px;color:var(--brown-xl);}
+.grp-pct{font-size:12px;font-weight:700;color:var(--green);}
+
+.pl-item{
+  display:flex;align-items:center;gap:12px;
+  background:#fff;border-radius:var(--r16);
+  padding:13px 16px;margin:0 16px 8px;
+  box-shadow:0 2px 8px rgba(61,43,26,0.06);
+  transition:opacity 0.2s;
+}
+.pl-item.packed{opacity:0.4;}
+.pl-item.packed .pli-name{text-decoration:line-through;}
+.pli-chk{
+  width:26px;height:26px;border-radius:9px;
+  border:2px solid #E8D5C0;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;font-size:14px;font-weight:700;
+  transition:all 0.15s;
+}
+.pli-chk.done{background:var(--green);border-color:var(--green);color:#fff;}
+.pli-name{font-size:14px;font-weight:600;color:var(--brown);flex:1;}
+.pli-qty{
+  display:flex;align-items:center;gap:6px;
+  font-size:13px;font-weight:700;color:var(--brown-l);
+}
+.pqi{
+  width:26px;height:26px;background:var(--peach-d);border:none;
+  border-radius:8px;cursor:pointer;
+  font-size:15px;display:flex;align-items:center;justify-content:center;
+  transition:background 0.1s;color:var(--green);font-weight:700;
+}
+.pqi:hover{background:var(--green);color:#fff;}
+.pli-del{background:none;border:none;cursor:pointer;font-size:14px;color:#E8D5C0;padding:4px;transition:color 0.12s;}
+.pli-del:hover{color:var(--red);}
+
+/* ══════════════════════════════════
+   SCREEN: ADD ITEM
+══════════════════════════════════ */
+.s-add .add-top{
+  background:#fff;padding:16px 20px;
+  border-radius:0 0 22px 22px;
+  box-shadow:0 2px 12px rgba(61,43,26,0.07);
+}
+.add-top-row{display:flex;align-items:center;justify-content:space-between;}
+.add-title{font-size:18px;font-weight:800;color:var(--brown);}
+.btn-cancel{font-size:14px;color:var(--brown-xl);background:none;border:none;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-weight:600;}
+.btn-save-lnk{font-size:14px;color:var(--green);background:none;border:none;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;}
+
+.form-wrap{padding:20px 20px 0;}
+.fl{font-size:12px;font-weight:700;color:var(--brown-l);text-transform:uppercase;letter-spacing:0.7px;margin-bottom:8px;display:block;}
+.fi{
+  width:100%;padding:14px 16px;
+  border:2px solid #F0E3D0;border-radius:var(--r16);
+  font-family:'Plus Jakarta Sans',sans-serif;
+  font-size:15px;color:var(--brown);
+  background:#FEFAF5;outline:none;
+  transition:border-color 0.15s;
+}
+.fi:focus{border-color:var(--green);}
+.fi::placeholder{color:var(--brown-xl);}
+.fgrp{margin-bottom:18px;}
+
+/* qty stepper */
+.qty-step{
+  display:flex;align-items:center;
+  border:2px solid #F0E3D0;border-radius:var(--r16);
+  background:#FEFAF5;overflow:hidden;
+}
+.qs-b{
+  padding:14px 24px;background:none;border:none;
+  font-size:22px;cursor:pointer;color:var(--green);font-weight:800;
+  transition:background 0.1s;font-family:'Plus Jakarta Sans',sans-serif;
+}
+.qs-b:hover{background:var(--peach-d);}
+.qs-v{flex:1;text-align:center;font-size:20px;font-weight:800;color:var(--brown);}
+.qs-sep{width:2px;background:#F0E3D0;height:24px;align-self:center;}
+
+/* category grid */
+.cat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;}
+.cat-opt{
+  display:flex;flex-direction:column;align-items:center;gap:5px;
+  padding:12px 6px;border-radius:var(--r16);
+  border:2px solid #F0E3D0;background:#FEFAF5;
+  cursor:pointer;transition:all 0.15s;
+}
+.cat-opt.sel{border-color:var(--green);background:var(--green-pale);}
+.co-icon{font-size:24px;}
+.co-name{font-size:11px;font-weight:600;color:var(--brown-l);text-align:center;line-height:1.2;}
+.cat-opt.sel .co-name{color:var(--green-d);}
+
+/* essential toggle */
+.ess-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 16px;border:2px solid #F0E3D0;border-radius:var(--r16);
+  background:#FEFAF5;cursor:pointer;transition:all 0.15s;
+}
+.ess-row.on{border-color:var(--green);background:var(--green-pale);}
+.er-left{display:flex;flex-direction:column;gap:2px;}
+.er-main{font-size:14px;font-weight:700;color:var(--brown);}
+.er-sub{font-size:12px;color:var(--brown-xl);}
+.tog{width:46px;height:27px;border-radius:14px;background:#E8D5C0;position:relative;transition:background 0.2s;}
+.tog.on{background:var(--green);}
+.tog-dot{position:absolute;top:3px;left:3px;width:21px;height:21px;background:#fff;border-radius:50%;transition:transform 0.2s cubic-bezier(.4,0,.2,1);box-shadow:0 2px 6px rgba(0,0,0,0.18);}
+.tog.on .tog-dot{transform:translateX(19px);}
+
+/* ══════════════════════════════════
+   SCREEN: PROGRESS / STATS
+══════════════════════════════════ */
+.s-stats .st-hero{
+  background:#4A7C59;padding:14px 22px 70px;
+  position:relative;overflow:hidden;
+}
+.st-hero::after{content:'🌲🌲🌲';position:absolute;bottom:-4px;right:10px;font-size:50px;opacity:0.15;letter-spacing:-6px;}
+.st-title{font-size:22px;font-weight:800;color:#fff;letter-spacing:-0.4px;}
+.st-sub{font-size:13px;color:rgba(255,255,255,0.6);margin-top:3px;}
+.st-float{
+  margin:0 16px;margin-top:-48px;
+  background:#fff;border-radius:22px;
+  padding:20px;
+  box-shadow:0 10px 40px rgba(61,43,26,0.14);
+  position:relative;z-index:2;
+}
+.st-big{text-align:center;padding:6px 0 18px;}
+.st-big-v{font-size:58px;font-weight:800;color:var(--green);line-height:1;}
+.st-big-l{font-size:14px;color:var(--brown-xl);margin-top:6px;font-weight:600;}
+.st-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.st-box{background:var(--peach-d);border-radius:var(--r16);padding:14px;text-align:center;}
+.st-box-v{font-size:24px;font-weight:800;color:var(--brown);}
+.st-box-l{font-size:11px;font-weight:600;color:var(--brown-xl);margin-top:3px;text-transform:uppercase;letter-spacing:0.4px;}
+.st-prog{margin-top:16px;}
+.stp-track{height:10px;background:var(--peach-d);border-radius:5px;overflow:hidden;}
+.stp-fill{height:100%;background:linear-gradient(90deg,#4A7C59,#7BAF8A);border-radius:5px;transition:width 0.5s;}
+.stp-lbl{display:flex;justify-content:space-between;font-size:12px;font-weight:600;color:var(--brown-xl);margin-top:6px;}
+
+.cb-section{padding:20px;}
+.cb-title{font-size:16px;font-weight:800;color:var(--brown);margin-bottom:14px;}
+.cb-card{
+  background:#fff;border-radius:var(--r16);
+  padding:14px 16px;margin-bottom:8px;
+  box-shadow:0 2px 8px rgba(61,43,26,0.06);
+}
+.cb-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.cb-ic{
+  width:36px;height:36px;border-radius:11px;
+  background:var(--green-pale);
+  display:flex;align-items:center;justify-content:center;font-size:18px;
+}
+.cb-nm{font-size:14px;font-weight:700;color:var(--brown);flex:1;}
+.cb-p{font-size:13px;font-weight:800;color:var(--green);}
+.cb-tr{height:6px;background:var(--peach-d);border-radius:3px;overflow:hidden;}
+.cb-fi{height:100%;background:var(--green);border-radius:3px;}
+
+/* ══════════════════════════════════
+   SCREEN: CATEGORY DETAIL
+══════════════════════════════════ */
+.s-det .det-hdr{
+  background:#fff;padding:14px 20px;
+  border-radius:0 0 22px 22px;
+  box-shadow:0 2px 12px rgba(61,43,26,0.07);
+  display:flex;align-items:center;gap:12px;
+}
+.back-btn{
+  width:36px;height:36px;background:var(--peach-d);border:none;border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;font-size:18px;flex-shrink:0;color:var(--brown);
+}
+.det-cat-ic{font-size:26px;}
+.det-cat-nm{font-size:18px;font-weight:800;color:var(--brown);}
+.det-cat-st{font-size:12px;color:var(--brown-xl);}
+
+/* ══════════════════════════════════
+   ILLUSTRATIONS (CSS only)
+══════════════════════════════════ */
+/* floating illustrated elements in hero */
+.illus-tent{
+  position:absolute;bottom:8px;right:20px;
+  font-size:44px;opacity:0.55;
+  filter:drop-shadow(0 4px 8px rgba(0,0,0,0.2));
+}
+.illus-cloud{
+  position:absolute;
+  background:rgba(255,255,255,0.22);
+  border-radius:50px;
+}
+.ic1{width:60px;height:24px;top:30px;right:60px;}
+.ic2{width:40px;height:18px;top:22px;right:108px;}
+.ic3{width:80px;height:28px;top:50px;right:140px;opacity:0.12;}
+
+/* ══════════════════════════════════
+   TOAST
+══════════════════════════════════ */
+.toast{
+  position:absolute;bottom:92px;left:50%;
+  transform:translateX(-50%) translateY(16px);
+  background:var(--brown);color:#fff;
+  padding:10px 20px;border-radius:40px;
+  font-size:13px;font-weight:600;
+  z-index:500;opacity:0;pointer-events:none;
+  transition:opacity 0.3s,transform 0.3s;
+  white-space:nowrap;
+  box-shadow:0 6px 20px rgba(61,43,26,0.3);
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* ══════════════════════════════════
+   EMPTY / LOADING
+══════════════════════════════════ */
+.empty{text-align:center;padding:40px 20px;}
+.empty-em{font-size:48px;margin-bottom:12px;}
+.empty-t{font-size:15px;font-weight:700;color:var(--brown);margin-bottom:4px;}
+.empty-s{font-size:13px;color:var(--brown-xl);}
+.spinner{width:28px;height:28px;border:3px solid #E8D5C0;border-top-color:var(--green);border-radius:50%;animation:sp 0.7s linear infinite;margin:30px auto;}
+@keyframes sp{to{transform:rotate(360deg);}}
+</style>
+</head>
+<body>
+
+<div class="phone">
+
+  <!-- Status bar -->
+  <div class="sbar on-green" id="sbar">
+    <span>9:41</span>
+    <div class="sb-r"><span>●●●●</span><span>WiFi</span><span>🔋</span></div>
+  </div>
+
+  <div class="screens">
+
+    <!-- ══════════════ HOME ══════════════ -->
+    <div class="screen s-home active" id="s-home">
+      <div class="scroll">
+
+        <!-- Hero -->
+        <div class="hero">
+          <div class="illus-cloud ic1"></div>
+          <div class="illus-cloud ic2"></div>
+          <div class="illus-cloud ic3"></div>
+          <div class="hero-hi">Good morning 👋</div>
+          <div class="hero-name">Ready to Pack?</div>
+          <div class="home-search">
+            <span>🔍</span>
+            <input type="text" placeholder="Search your gear…" readonly onclick="navTo('s-pack')">
+          </div>
+          <div class="illus-tent">⛺</div>
+        </div>
+
+        <!-- Float card -->
+        <div class="home-float">
+          <div class="hf-card">
+            <div class="hf-row">
+              <div>
+                <div class="hf-label">Packing progress</div>
+                <div class="hf-pct" id="h-pct">0%</div>
+              </div>
+              <div class="hf-stats">
+                <div class="hfs"><div class="hfs-v" id="h-done">0</div><div class="hfs-l">Done</div></div>
+                <div class="hfs"><div class="hfs-v" id="h-left">0</div><div class="hfs-l">Left</div></div>
+                <div class="hfs"><div class="hfs-v" id="h-total">0</div><div class="hfs-l">Total</div></div>
+              </div>
+            </div>
+            <div class="prog"><div class="prog-bar" id="h-bar" style="width:0%"></div></div>
+          </div>
+        </div>
+
+        <!-- Category bubbles -->
+        <div style="margin-top:22px;">
+          <div class="section-hdr">
+            <span class="s-title">Categories</span>
+            <span class="s-link" onclick="navTo('s-pack')">See all →</span>
+          </div>
+          <div class="cat-bubbles" id="home-cats">
+            <div class="spinner"></div>
+          </div>
+        </div>
+
+        <!-- Recent items -->
+        <div style="margin-top:20px;padding:0 20px;">
+          <div class="section-hdr" style="padding:0;margin-bottom:12px;">
+            <span class="s-title">Recent Items</span>
+            <span class="s-link" onclick="navTo('s-pack')">View all →</span>
+          </div>
+          <div id="home-recents"></div>
+        </div>
+        <div style="height:20px;"></div>
+      </div>
+    </div>
+
+    <!-- ══════════════ PACK LIST ══════════════ -->
+    <div class="screen s-pack" id="s-pack">
+      <div class="pl-header">
+        <div class="pl-title">Pack List</div>
+        <div class="pl-sub" id="pl-sub">Loading…</div>
+        <div class="pl-search">
+          <span style="font-size:15px;">🔍</span>
+          <input type="text" placeholder="Search items…" id="pl-search" oninput="renderPack()">
+        </div>
+        <div class="pl-chips">
+          <button class="pill pill-outline active" onclick="setFilter('all',this)">All</button>
+          <button class="pill pill-outline" onclick="setFilter('unpacked',this)">Unpacked</button>
+          <button class="pill pill-outline" onclick="setFilter('packed',this)">Packed ✓</button>
+          <button class="pill pill-outline" onclick="setFilter('essential',this)">⭐ Essential</button>
+        </div>
+      </div>
+      <div class="scroll">
+        <div id="pl-list" style="padding-bottom:20px;"></div>
+      </div>
+    </div>
+
+    <!-- ══════════════ ADD ITEM ══════════════ -->
+    <div class="screen s-add" id="s-add">
+      <div class="add-top">
+        <div class="add-top-row">
+          <button class="btn-cancel" onclick="navBack()">Cancel</button>
+          <div class="add-title">New Item</div>
+          <button class="btn-save-lnk" onclick="saveItem()">Save</button>
+        </div>
+      </div>
+      <div class="scroll">
+        <div class="form-wrap">
+          <div class="fgrp">
+            <label class="fl">Item Name</label>
+            <input class="fi" id="add-name" type="text" placeholder="e.g. Sleeping bag…" maxlength="80" autocomplete="off">
+          </div>
+          <div class="fgrp">
+            <label class="fl">Category</label>
+            <div class="cat-grid" id="add-cat-grid"></div>
+          </div>
+          <div class="fgrp">
+            <label class="fl">Quantity</label>
+            <div class="qty-step">
+              <button class="qs-b" onclick="chAddQty(-1)">−</button>
+              <div class="qs-sep"></div>
+              <div class="qs-v" id="add-qty">1</div>
+              <div class="qs-sep"></div>
+              <button class="qs-b" onclick="chAddQty(1)">+</button>
+            </div>
+          </div>
+          <div class="fgrp">
+            <label class="fl">Mark as Essential</label>
+            <div class="ess-row" id="ess-row" onclick="togEss()">
+              <div class="er-left">
+                <span class="er-main">Essential item</span>
+                <span class="er-sub">Highlight must-haves</span>
+              </div>
+              <div class="tog" id="ess-tog"><div class="tog-dot"></div></div>
+            </div>
+          </div>
+          <div class="fgrp">
+            <label class="fl">Notes</label>
+            <input class="fi" id="add-notes" type="text" placeholder="Optional notes…" maxlength="120">
+          </div>
+          <button class="btn-primary" id="btn-add" onclick="saveItem()" style="margin-bottom:30px;">
+            + Add to Pack List
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════ STATS ══════════════ -->
+    <div class="screen s-stats" id="s-stats">
+      <div class="scroll">
+        <div class="st-hero">
+          <div class="st-title">Progress</div>
+          <div class="st-sub">How packed are you?</div>
+        </div>
+        <div style="padding:0 16px;">
+          <div class="st-float">
+            <div class="st-big">
+              <div class="st-big-v" id="st-pct">0%</div>
+              <div class="st-big-l">overall packing progress</div>
+            </div>
+            <div class="st-grid">
+              <div class="st-box"><div class="st-box-v" id="st-done">0</div><div class="st-box-l">Packed</div></div>
+              <div class="st-box"><div class="st-box-v" id="st-left">0</div><div class="st-box-l">Remaining</div></div>
+              <div class="st-box"><div class="st-box-v" id="st-ess">0</div><div class="st-box-l">Essential</div></div>
+              <div class="st-box"><div class="st-box-v" id="st-tot">0</div><div class="st-box-l">Total Items</div></div>
+            </div>
+            <div class="st-prog">
+              <div class="stp-track"><div class="stp-fill" id="st-bar" style="width:0%"></div></div>
+              <div class="stp-lbl"><span id="st-lbl-l">0 packed</span><span id="st-lbl-r">of 0</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="cb-section">
+          <div class="cb-title">By Category</div>
+          <div id="cb-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════ CATEGORY DETAIL ══════════════ -->
+    <div class="screen s-det" id="s-det">
+      <div class="det-hdr">
+        <button class="back-btn" onclick="navBack()">←</button>
+        <span class="det-cat-ic" id="det-ic"></span>
+        <div>
+          <div class="det-cat-nm" id="det-nm"></div>
+          <div class="det-cat-st" id="det-st"></div>
+        </div>
+      </div>
+      <div class="scroll">
+        <div id="det-list" style="padding:16px;padding-bottom:30px;"></div>
+      </div>
+    </div>
+
+  </div><!-- /screens -->
+
+  <!-- Bottom nav -->
+  <div class="bnav">
+    <button class="ni active" id="ni-home" onclick="navTo('s-home')">
+      <div class="ni-icon">🏠</div>
+      <div class="ni-lbl">Home</div>
+    </button>
+    <button class="ni" id="ni-pack" onclick="navTo('s-pack')">
+      <div class="ni-icon">🎒</div>
+      <div class="ni-lbl">Pack List</div>
+    </button>
+    <button class="ni-fab" onclick="navTo('s-add')">＋</button>
+    <button class="ni" id="ni-stats" onclick="navTo('s-stats')">
+      <div class="ni-icon">📊</div>
+      <div class="ni-lbl">Progress</div>
+    </button>
+    <button class="ni" id="ni-browse" onclick="navTo('s-pack')">
+      <div class="ni-icon">🗂️</div>
+      <div class="ni-lbl">Browse</div>
+    </button>
+  </div>
+
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+/* ── Supabase ── */
+const SB='https://tbedgeiriemjnjymrtsl.supabase.co';
+const KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRiZWRnZWlyaWVtam5qeW1ydHNsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE0NzM5MDAsImV4cCI6MjA5NzA0OTkwMH0.Xp07gPk3eA-WzMOUsopvAbGKt3X4lWSUQaGsgcqDNyI';
+const H={'apikey':KEY,'Authorization':'Bearer '+KEY,'Content-Type':'application/json','Prefer':'return=representation'};
+async function api(m,p,b){
+  const r=await fetch(SB+'/rest/v1/'+p,{method:m,headers:H,body:b?JSON.stringify(b):undefined});
+  if(!r.ok)throw new Error(await r.text());
+  return r.status===204?null:r.json();
+}
+
+/* ── State ── */
+let cats=[],items=[],pFilter='all',addQty=1,addCatId=null,addEss=false,prevSc='s-home',detCatId=null;
+
+/* ── Nav ── */
+const SC_SBAR={'s-home':'on-green','s-stats':'on-green'};
+const SC_NAV={'s-home':'ni-home','s-pack':'ni-pack','s-stats':'ni-stats'};
+function navTo(id){
+  const cur=document.querySelector('.screen.active');
+  if(cur&&cur.id===id)return;
+  prevSc=cur?cur.id:'s-home';
+
+  // statusbar theme
+  const sb=document.getElementById('sbar');
+  sb.className='sbar '+(SC_SBAR[id]||'on-cream');
+
+  if(cur){cur.classList.remove('active');cur.classList.add('prev');setTimeout(()=>cur.classList.remove('prev'),350);}
+  document.getElementById(id).classList.add('active');
+
+  document.querySelectorAll('.ni').forEach(b=>b.classList.remove('active'));
+  const nb=SC_NAV[id];if(nb)document.getElementById(nb).classList.add('active');
+
+  if(id==='s-add')resetAdd();
+  if(id==='s-stats')renderStats();
+  if(id==='s-pack')renderPack();
+  if(id==='s-home')renderHome();
+}
+function navBack(){navTo(prevSc||'s-home');}
+
+/* ── Boot ── */
+async function boot(){
+  try{
+    [cats,items]=await Promise.all([
+      api('GET','categories?select=*&order=name.asc'),
+      api('GET','items?select=*,categories(name,icon)&order=created_at.desc')
+    ]);
+    buildAddCatGrid();
+    renderHome();
+    renderPack();
+  }catch(e){toast('Failed to load: '+e.message);}
+}
+
+/* ── HOME ── */
+function renderHome(){
+  syncStats();
+  // category bubbles
+  const el=document.getElementById('home-cats');
+  el.innerHTML=cats.map(c=>{
+    const ci=items.filter(x=>x.category_id===c.id);
+    const done=ci.filter(x=>x.packed).length;
+    return`<div class="cat-bubble" onclick="openDet('${c.id}')">
+      <div class="cb-icon-wrap">
+        ${c.icon||'📦'}
+        ${ci.length?`<span class="cb-badge">${ci.length}</span>`:''}
+      </div>
+      <div class="cb-name">${esc(c.name)}</div>
+    </div>`;
+  }).join('');
+  if(!cats.length) el.innerHTML='<div style="padding:10px 20px;font-size:13px;color:#BBA896;">No categories yet</div>';
+
+  // recent items
+  const el2=document.getElementById('home-recents');
+  const recent=items.slice(0,5);
+  if(!recent.length){
+    el2.innerHTML=`<div class="empty"><div class="empty-em">🎒</div><div class="empty-t">No items yet</div><div class="empty-s">Tap + to add your first item</div></div>`;
+    return;
+  }
+  el2.innerHTML=recent.map(it=>`
+    <div class="ri-card ${it.packed?'ri-packed':''}" onclick="toggleItem('${it.id}',${!it.packed})">
+      <div class="ri-chk ${it.packed?'done':''}">${it.packed?'✓':''}</div>
+      <div style="flex:1;">
+        <div class="ri-name">${esc(it.name)}</div>
+        <div class="ri-cat">${it.categories?(it.categories.icon||'')+' '+it.categories.name:'Uncategorized'} · ×${it.quantity}</div>
+      </div>
+      ${it.essential?'<span class="ess-tag">★ Must-have</span>':''}
+    </div>
+  `).join('');
+}
+
+/* ── PACK LIST ── */
+function renderPack(){
+  const q=(document.getElementById('pl-search')||{value:''}).value.toLowerCase();
+  let list=[...items];
+  if(pFilter==='packed') list=list.filter(i=>i.packed);
+  else if(pFilter==='unpacked') list=list.filter(i=>!i.packed);
+  else if(pFilter==='essential') list=list.filter(i=>i.essential);
+  if(q) list=list.filter(i=>i.name.toLowerCase().includes(q));
+
+  const packed=items.filter(i=>i.packed).length;
+  const sub=document.getElementById('pl-sub');
+  if(sub) sub.textContent=`${packed} of ${items.length} items packed`;
+
+  const el=document.getElementById('pl-list');
+  if(!list.length){
+    el.innerHTML=`<div class="empty" style="padding-top:40px;"><div class="empty-em">🌲</div><div class="empty-t">Nothing here yet</div><div class="empty-s">Add items with the + button</div></div>`;
+    return;
+  }
+  // group by cat
+  const grps={};
+  list.forEach(it=>{const k=it.category_id||'__';if(!grps[k])grps[k]=[];grps[k].push(it);});
+  let html='';
+  [...cats.map(c=>c.id),'__'].forEach(cid=>{
+    const g=grps[cid];if(!g||!g.length)return;
+    const c=cats.find(x=>x.id===cid);
+    const dp=g.filter(i=>i.packed).length;
+    const pct=g.length?Math.round(dp/g.length*100):0;
+    html+=`<div class="grp-hdr">
+      <div class="grp-icon">${c?c.icon:'📦'}</div>
+      <span class="grp-name">${c?esc(c.name):'Uncategorized'}</span>
+      <span class="grp-cnt">${g.length} items</span>
+      <span class="grp-pct">${pct}%</span>
+    </div>`;
+    g.forEach(it=>{
+      html+=`<div class="pl-item ${it.packed?'packed':''}" id="pli-${it.id}">
+        <div class="pli-chk ${it.packed?'done':''}" onclick="toggleItem('${it.id}',${!it.packed})">${it.packed?'✓':''}</div>
+        <div class="pli-name">${esc(it.name)}</div>
+        ${it.essential?'<span class="ess-tag" style="font-size:9px;padding:2px 7px;">★</span>':''}
+        <div class="pli-qty">
+          <button class="pqi" onclick="chQty('${it.id}',${it.quantity-1})">−</button>
+          <span>${it.quantity}</span>
+          <button class="pqi" onclick="chQty('${it.id}',${it.quantity+1})">+</button>
+        </div>
+        <button class="pli-del" onclick="delItem('${it.id}')">✕</button>
+      </div>`;
+    });
+  });
+  el.innerHTML=html;
+}
+function setFilter(f,btn){
+  pFilter=f;
+  document.querySelectorAll('.pl-chips .pill').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderPack();
+}
+
+/* ── ADD FORM ── */
+function resetAdd(){
+  document.getElementById('add-name').value='';
+  document.getElementById('add-notes').value='';
+  addQty=1;addCatId=null;addEss=false;
+  document.getElementById('add-qty').textContent='1';
+  document.getElementById('ess-tog').classList.remove('on');
+  document.getElementById('ess-row').classList.remove('on');
+  document.querySelectorAll('.cat-opt').forEach(e=>e.classList.remove('sel'));
+}
+function buildAddCatGrid(){
+  document.getElementById('add-cat-grid').innerHTML=cats.map(c=>`
+    <div class="cat-opt" onclick="selCat(this,'${c.id}')">
+      <div class="co-icon">${c.icon||'📦'}</div>
+      <div class="co-name">${esc(c.name)}</div>
+    </div>
+  `).join('');
+}
+function selCat(el,id){
+  document.querySelectorAll('.cat-opt').forEach(e=>e.classList.remove('sel'));
+  if(addCatId===id){addCatId=null;}else{el.classList.add('sel');addCatId=id;}
+}
+function chAddQty(d){addQty=Math.max(1,Math.min(99,addQty+d));document.getElementById('add-qty').textContent=addQty;}
+function togEss(){
+  addEss=!addEss;
+  document.getElementById('ess-tog').classList.toggle('on',addEss);
+  document.getElementById('ess-row').classList.toggle('on',addEss);
+}
+async function saveItem(){
+  const name=document.getElementById('add-name').value.trim();
+  if(!name){document.getElementById('add-name').focus();toast('Please enter an item name');return;}
+  const notes=document.getElementById('add-notes').value.trim();
+  const btn=document.getElementById('btn-add');btn.disabled=true;
+  try{
+    const[ni]=await api('POST','items?select=*,categories(name,icon)',{
+      name,category_id:addCatId||null,quantity:addQty,essential:addEss,packed:false,notes:notes||null
+    });
+    items.unshift(ni);
+    renderHome();renderPack();syncStats();
+    toast('✓ '+name+' added!');
+    navTo('s-pack');
+  }catch(e){toast('Error: '+e.message);}
+  finally{btn.disabled=false;}
+}
+
+/* ── STATS ── */
+function renderStats(){
+  const tot=items.length,pk=items.filter(i=>i.packed).length,es=items.filter(i=>i.essential).length;
+  const pct=tot?Math.round(pk/tot*100):0;
+  document.getElementById('st-pct').textContent=pct+'%';
+  document.getElementById('st-done').textContent=pk;
+  document.getElementById('st-left').textContent=tot-pk;
+  document.getElementById('st-ess').textContent=es;
+  document.getElementById('st-tot').textContent=tot;
+  document.getElementById('st-bar').style.width=pct+'%';
+  document.getElementById('st-lbl-l').textContent=pk+' packed';
+  document.getElementById('st-lbl-r').textContent='of '+tot;
+  const cb=document.getElementById('cb-list');
+  cb.innerHTML=cats.map(c=>{
+    const ci=items.filter(x=>x.category_id===c.id);
+    if(!ci.length)return'';
+    const dp=ci.filter(x=>x.packed).length;
+    const p=ci.length?Math.round(dp/ci.length*100):0;
+    return`<div class="cb-card">
+      <div class="cb-row">
+        <div class="cb-ic">${c.icon||'📦'}</div>
+        <span class="cb-nm">${esc(c.name)}</span>
+        <span class="cb-p">${p}%</span>
+      </div>
+      <div class="cb-tr"><div class="cb-fi" style="width:${p}%;"></div></div>
+    </div>`;
+  }).join('');
+}
+
+/* ── CAT DETAIL ── */
+function openDet(id){
+  prevSc=document.querySelector('.screen.active')?.id||'s-home';
+  detCatId=id;
+  const c=cats.find(x=>x.id===id);if(!c)return;
+  document.getElementById('det-ic').textContent=c.icon||'📦';
+  document.getElementById('det-nm').textContent=c.name;
+  const ci=items.filter(x=>x.category_id===id);
+  const pk=ci.filter(x=>x.packed).length;
+  document.getElementById('det-st').textContent=`${ci.length} items · ${pk} packed`;
+  renderDetList();
+  const sb=document.getElementById('sbar');sb.className='sbar on-cream';
+  document.querySelector('.screen.active').classList.remove('active');
+  document.getElementById('s-det').classList.add('active');
+  document.querySelectorAll('.ni').forEach(b=>b.classList.remove('active'));
+}
+function renderDetList(){
+  const ci=items.filter(x=>x.category_id===detCatId);
+  const el=document.getElementById('det-list');
+  if(!ci.length){el.innerHTML=`<div class="empty"><div class="empty-em">📦</div><div class="empty-t">No items yet</div></div>`;return;}
+  el.innerHTML=ci.map(it=>`
+    <div class="pl-item ${it.packed?'packed':''}" id="di-${it.id}">
+      <div class="pli-chk ${it.packed?'done':''}" onclick="toggleItem('${it.id}',${!it.packed},true)">${it.packed?'✓':''}</div>
+      <div class="pli-name">${esc(it.name)}</div>
+      ${it.essential?'<span class="ess-tag" style="font-size:9px;padding:2px 7px;">★</span>':''}
+      <div class="pli-qty">
+        <button class="pqi" onclick="chQty('${it.id}',${it.quantity-1})">−</button>
+        <span>${it.quantity}</span>
+        <button class="pqi" onclick="chQty('${it.id}',${it.quantity+1})">+</button>
+      </div>
+      <button class="pli-del" onclick="delItem('${it.id}')">✕</button>
+    </div>
+  `).join('');
+  // update subtitle
+  const c=cats.find(x=>x.id===detCatId);
+  const pk=ci.filter(x=>x.packed).length;
+  const sub=document.getElementById('det-st');
+  if(sub) sub.textContent=`${ci.length} items · ${pk} packed`;
+}
+
+/* ── ITEM OPS ── */
+async function toggleItem(id,packed,isDet){
+  const it=items.find(x=>x.id===id);if(!it)return;
+  it.packed=packed;
+  renderHome();renderPack();syncStats();
+  if(isDet)renderDetList();
+  try{await api('PATCH','items?id=eq.'+id,{packed});}
+  catch(e){it.packed=!packed;renderHome();renderPack();syncStats();}
+}
+async function chQty(id,qty){
+  if(qty<1)return;
+  const it=items.find(x=>x.id===id);if(!it)return;
+  const prev=it.quantity;it.quantity=qty;
+  renderPack();if(detCatId)renderDetList();
+  try{await api('PATCH','items?id=eq.'+id,{quantity:qty});}
+  catch(e){it.quantity=prev;renderPack();}
+}
+async function delItem(id){
+  const idx=items.findIndex(x=>x.id===id);if(idx<0)return;
+  const[rm]=items.splice(idx,1);
+  renderHome();renderPack();syncStats();if(detCatId)renderDetList();
+  try{await api('DELETE','items?id=eq.'+id);}
+  catch(e){items.splice(idx,0,rm);renderHome();renderPack();syncStats();toast('Delete failed');}
+}
+function syncStats(){
+  const tot=items.length,pk=items.filter(i=>i.packed).length;
+  const pct=tot?Math.round(pk/tot*100):0;
+  const upd={'h-pct':pct+'%','h-done':pk,'h-left':tot-pk,'h-total':tot};
+  Object.entries(upd).forEach(([k,v])=>{const e=document.getElementById(k);if(e)e.textContent=v;});
+  const bar=document.getElementById('h-bar');if(bar)bar.style.width=pct+'%';
+}
+
+/* ── UTIL ── */
+let tt;
+function toast(msg){
+  const el=document.getElementById('toast');
+  el.textContent=msg;el.classList.add('show');
+  clearTimeout(tt);tt=setTimeout(()=>el.classList.remove('show'),2400);
+}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+document.addEventListener('keydown',e=>{
+  if(e.key==='Enter'&&document.getElementById('s-add').classList.contains('active'))saveItem();
+});
+
+boot();
+</script>
+</body>
+</html>
