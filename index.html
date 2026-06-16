@@ -386,8 +386,16 @@ html,body{height:100%;height:100dvh;background:#0A0818;font-family:'Plus Jakarta
         <div class="hero-nature"></div>
         <div class="hero-overlay"></div>
         <div class="hero-overlay-content">
-          <div class="hero-greeting" id="hero-greeting">GOOD MORNING 👋</div>
-          <div class="hero-headline">Are You<br>Trip Ready?</div>
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;">
+            <div style="flex:1;min-width:0;">
+              <div class="hero-greeting" id="hero-greeting">GOOD MORNING 👋</div>
+              <div class="hero-headline">Are You<br>Trip Ready?</div>
+            </div>
+            <div id="hero-clock" style="text-align:right;flex-shrink:0;padding-top:2px;">
+              <div id="hero-clock-time" style="font-size:26px;font-weight:800;color:#fff;letter-spacing:-0.5px;line-height:1;">--:--</div>
+              <div id="hero-clock-date" style="font-size:11px;font-weight:600;color:rgba(255,255,255,0.6);margin-top:4px;letter-spacing:0.3px;">---</div>
+            </div>
+          </div>
           <div class="hero-sub" style="font-size:13px;color:rgba(255,255,255,0.7);margin-top:6px;margin-bottom:20px;font-weight:500;">Never forget your essentials again</div>
           <div class="hero-search"><span style="font-size:15px;opacity:0.6;">🔍</span><input type="text" placeholder="Search your gear…" readonly onclick="navTo('s-pack')"></div>
         </div>
@@ -1733,6 +1741,18 @@ function updateGreeting(){
   if(el) el.textContent = text + ' ' + emoji;
 }
 
+function updateClock(){
+  const now = new Date();
+  let h = now.getHours();
+  const m = now.getMinutes().toString().padStart(2,'0');
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  h = h % 12; if(h === 0) h = 12;
+  const timeEl = document.getElementById('hero-clock-time');
+  const dateEl = document.getElementById('hero-clock-date');
+  if(timeEl) timeEl.innerHTML = `${h}:${m}<span style="font-size:13px;font-weight:700;margin-left:3px;">${ampm}</span>`;
+  if(dateEl) dateEl.textContent = now.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+}
+
 function enterApp(){
   const splash=document.getElementById('s-splash');
   // Show nav + sbar first
@@ -1750,6 +1770,8 @@ function enterApp(){
 boot();
 updateGreeting();
 setInterval(updateGreeting, 60000);
+updateClock();
+setInterval(updateClock, 1000);
 </script>
 </body>
 </html>
