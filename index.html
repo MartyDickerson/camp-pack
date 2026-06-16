@@ -426,6 +426,7 @@ html,body{height:100%;height:100dvh;background:#0A0818;font-family:'Plus Jakarta
 
         <!-- Weather card -->
         <div id="weather-card" style="display:none;padding:0 16px;margin-top:10px;">
+          <div id="wx-label" style="font-size:11px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:6px;padding-left:2px;">Current conditions</div>
           <div style="background:#fff;border-radius:14px;padding:12px 16px;box-shadow:0 2px 8px rgba(0,0,0,0.06);display:flex;align-items:center;gap:14px;">
             <div id="wx-icon" style="font-size:32px;">🌤️</div>
             <div style="flex:1;">
@@ -1304,16 +1305,17 @@ async function loadWeather(trip){
   if(!trip.latitude || !trip.longitude){card.style.display='none';return;}
   const cacheKey=trip.id+':'+trip.latitude+':'+trip.longitude;
   if(weatherCache[cacheKey]){
-    renderWeather(weatherCache[cacheKey]);
+    renderWeather(weatherCache[cacheKey],trip);
     return;
   }
   try{
-    const url=`https://api.open-meteo.com/v1/forecast?latitude=${trip.latitude}&longitude=${trip.longitude}&current=temperature_2m,precipitation,weather_code&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max&temperature_unit=fahrenheit&timezone=auto&forecast_days=1`;
+    // Fetch up to 16 days of forecast plus current conditions
+    const url=`https://api.open-meteo.com/v1/forecast?latitude=${trip.latitude}&longitude=${trip.longitude}&current=temperature_2m,precipitation,weather_code&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,weather_code&temperature_unit=fahrenheit&timezone=auto&forecast_days=16`;
     const res=await fetch(url);
     if(!res.ok)throw new Error('Weather fetch failed');
     const data=await res.json();
     weatherCache[cacheKey]=data;
-    renderWeather(data);
+    renderWeather(data,trip);
   }catch(e){
     card.style.display='none';
   }
@@ -1338,20 +1340,50 @@ function weatherDesc(code){
   if(code<=99)return 'Stormy';
   return 'Unknown';
 }
-function renderWeather(data){
+function renderWeather(data,trip){
   const card=document.getElementById('weather-card');
-  if(!data.current){card.style.display='none';return;}
+  if(!data.current && !data.daily){card.style.display='none';return;}
   card.style.display='block';
-  const code=data.current.weather_code;
-  document.getElementById('wx-icon').textContent=weatherEmoji(code);
-  document.getElementById('wx-temp').textContent=Math.round(data.current.temperature_2m)+'°';
-  document.getElementById('wx-desc').textContent=weatherDesc(code);
-  if(data.daily){
-    const hi=Math.round(data.daily.temperature_2m_max[0]);
-    const lo=Math.round(data.daily.temperature_2m_min[0]);
+
+  // Try to find the trip date within the 16-day forecast window
+  let dayIndex=-1;
+  if(trip && trip.trip_date && data.daily && data.daily.time){
+    dayIndex=data.daily.time.indexOf(trip.trip_date);
+  }
+
+  const labelEl=document.getElementById('wx-label');
+
+  if(dayIndex>=0){
+    // Show forecast for the actual trip date
+    const code=data.daily.weather_code[dayIndex];
+    const hi=Math.round(data.daily.temperature_2m_max[dayIndex]);
+    const lo=Math.round(data.daily.temperature_2m_min[dayIndex]);
+    const rain=data.daily.precipitation_probability_max[dayIndex];
+    document.getElementById('wx-icon').textContent=weatherEmoji(code);
+    document.getElementById('wx-temp').textContent=hi+'°';
+    document.getElementById('wx-desc').textContent=weatherDesc(code);
     document.getElementById('wx-range').textContent=`H: ${hi}° L: ${lo}°`;
-    const rain=data.daily.precipitation_probability_max[0];
     document.getElementById('wx-rain-pct').textContent=rain+'%';
+    if(labelEl)labelEl.textContent='Forecast for '+formatDate(trip.trip_date);
+  }else if(data.current){
+    // Fall back to current conditions (trip date too far out, today, or past)
+    const code=data.current.weather_code;
+    document.getElementById('wx-icon').textContent=weatherEmoji(code);
+    document.getElementById('wx-temp').textContent=Math.round(data.current.temperature_2m)+'°';
+    document.getElementById('wx-desc').textContent=weatherDesc(code);
+    if(data.daily){
+      const hi=Math.round(data.daily.temperature_2m_max[0]);
+      const lo=Math.round(data.daily.temperature_2m_min[0]);
+      document.getElementById('wx-range').textContent=`H: ${hi}° L: ${lo}°`;
+      const rain=data.daily.precipitation_probability_max[0];
+      document.getElementById('wx-rain-pct').textContent=rain+'%';
+    }
+    if(labelEl){
+      const farOut = trip && trip.trip_date && daysUntil(trip.trip_date)>15;
+      labelEl.textContent = farOut ? 'Current conditions (forecast unavailable yet)' : 'Current conditions';
+    }
+  }else{
+    card.style.display='none';
   }
 }
 function daysUntil(dateStr){
