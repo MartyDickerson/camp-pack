@@ -37,10 +37,27 @@ html,body{height:100%;height:100dvh;background:#0A0818;font-family:'Plus Jakarta
   --indigo:#1A1430;--indigo-mid:#221850;--indigo-light:#2E2068;
   --r20:20px;--r16:16px;--r12:12px;
   --cs:0 2px 16px rgba(0,0,0,0.18);--cs-lg:0 8px 32px rgba(0,0,0,0.25);
+  --card-bg:#fff;--screen-bg:#F4F2FA;--text-main:#12101E;--text-sub:#9890AA;--input-bg:#FEFAF5;--input-border:#F0E3D0;--hairline:#F0E8DC;
 }
+body.dark{
+  --peach:#15131F;--peach-d:#1C1A28;--brown:#F0EEF8;--brown-l:#C8C2DC;--brown-xl:#7A7390;
+  --card-bg:#211F30;--screen-bg:#15131F;--text-main:#F0EEF8;--text-sub:#8A82A0;--input-bg:#1C1A28;--input-border:#322E45;--hairline:#2A2638;
+  --amber-pale:#3A2A1A;
+}
+body.dark .home-body{background:var(--screen-bg)!important;}
+body.dark .screen:not(.s-splash):not(.s-home):not(.s-photo-view){background:var(--screen-bg);}
+/* card backgrounds now use var(--card-bg) directly and flip automatically with the theme */
+/* most text colors already use var(--brown)/var(--brown-xl) and flip automatically with the theme */
+body.dark .fi,body.dark textarea#cat-note-input{background:var(--input-bg)!important;border-color:var(--input-border)!important;color:var(--text-main)!important;}
+body.dark .ss-div,body.dark .price-row,body.dark hr{background:var(--hairline);}
+body.dark .pill-outline{background:var(--card-bg);border-color:var(--input-border);color:var(--brown-l);}
+body.dark #photo-upload-zone,body.dark #tp-upload-zone{background:var(--input-bg)!important;border-color:var(--input-border)!important;}
+body.dark .bnav{background:#0E0B1E;}
+body.dark .home-hero-wrap .hero-overlay{background:linear-gradient(180deg,rgba(0,0,0,0.6) 0%,rgba(0,0,0,0.25) 35%,rgba(0,0,0,0.05) 55%,rgba(21,19,31,0.85) 80%,rgba(21,19,31,1) 100%)!important;}
+.theme-toggle{width:38px;height:38px;border-radius:12px;background:rgba(255,255,255,0.15);border:none;display:flex;align-items:center;justify-content:center;font-size:17px;cursor:pointer;color:#fff;flex-shrink:0;}
 .pill{display:inline-flex;align-items:center;gap:5px;padding:6px 14px;border-radius:40px;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.15s;}
 .pill-green{background:#4A7C59;color:#fff;}
-.pill-outline{background:#fff;border:1.5px solid #E8D5C0;color:var(--brown-l);}
+.pill-outline{background:var(--card-bg);border:1.5px solid #E8D5C0;color:var(--brown-l);}
 .pill-outline.active{background:#3D2A7A;color:#fff;border-color:#5540A0;}
 .s-title{font-size:16px;font-weight:800;color:var(--brown);}
 .s-link{font-size:13px;font-weight:600;color:#E07820;}
@@ -57,7 +74,7 @@ html,body{height:100%;height:100dvh;background:#0A0818;font-family:'Plus Jakarta
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 
 /* shared form styles */
-.screen-hdr-white{background:#fff;padding:14px 20px;border-radius:0 0 22px 22px;box-shadow:0 2px 12px rgba(61,43,26,0.07);}
+.screen-hdr-white{background:var(--card-bg);padding:14px 20px;border-radius:0 0 22px 22px;box-shadow:0 2px 12px rgba(61,43,26,0.07);}
 .fl{font-size:12px;font-weight:700;color:var(--brown-l);text-transform:uppercase;letter-spacing:0.7px;margin-bottom:8px;display:block;}
 .fi{width:100%;padding:14px 16px;border:2px solid #F0E3D0;border-radius:var(--r16);font-family:'Plus Jakarta Sans',sans-serif;font-size:16px;color:var(--brown);background:#FEFAF5;outline:none;transition:border-color 0.15s;}
 .fi:focus{border-color:var(--green);}.fi::placeholder{color:var(--brown-xl);}
@@ -79,7 +96,7 @@ html,body{height:100%;height:100dvh;background:#0A0818;font-family:'Plus Jakarta
 .er-main{font-size:14px;font-weight:700;color:var(--brown);}.er-sub{font-size:12px;color:var(--brown-xl);}
 .tog{width:46px;height:27px;border-radius:14px;background:#E8D5C0;position:relative;transition:background 0.2s;}
 .tog.on{background:#E07820;}
-.tog-dot{position:absolute;top:3px;left:3px;width:21px;height:21px;background:#fff;border-radius:50%;transition:transform 0.2s cubic-bezier(.4,0,.2,1);box-shadow:0 2px 6px rgba(0,0,0,0.18);}
+.tog-dot{position:absolute;top:3px;left:3px;width:21px;height:21px;background:var(--card-bg);border-radius:50%;transition:transform 0.2s cubic-bezier(.4,0,.2,1);box-shadow:0 2px 6px rgba(0,0,0,0.18);}
 .tog.on .tog-dot{transform:translateX(19px);}
 
 /* HOME */
@@ -149,7 +166,7 @@ html,body{height:100%;height:100dvh;background:#0A0818;font-family:'Plus Jakarta
 /* white sliding body */
 .home-body{flex:1;background:#F4F2FA;border-radius:26px 26px 0 0;margin-top:-20px;overflow-y:auto;position:relative;z-index:5;}
 .home-body::-webkit-scrollbar{display:none;}
-.stat-strip{display:flex;align-items:center;background:#FDFCFF;border-radius:18px;margin:14px 16px 0;padding:13px 14px;box-shadow:0 4px 18px rgba(61,43,26,0.1);}
+.stat-strip{display:flex;align-items:center;background:var(--card-bg);border-radius:18px;margin:14px 16px 0;padding:13px 14px;box-shadow:0 4px 18px rgba(61,43,26,0.1);}
 .ss-item{flex:1;text-align:center;}
 .ss-div{width:1px;background:#F0E8DC;height:28px;align-self:center;}
 .ss-v{font-size:20px;font-weight:800;color:var(--brown);}
@@ -179,7 +196,7 @@ html,body{height:100%;height:100dvh;background:#0A0818;font-family:'Plus Jakarta
 
 /* trip cards in switcher */
 .trip-card{
-  background:#fff;border-radius:var(--r16);
+  background:var(--card-bg);border-radius:var(--r16);
   padding:16px 18px;margin-bottom:10px;
   box-shadow:0 2px 8px rgba(0,0,0,0.06);
   cursor:pointer;transition:all 0.15s;
@@ -200,7 +217,7 @@ html,body{height:100%;height:100dvh;background:#0A0818;font-family:'Plus Jakarta
 
 /* templates */
 .template-card{
-  background:#fff;border-radius:var(--r20);
+  background:var(--card-bg);border-radius:var(--r20);
   padding:18px;margin-bottom:12px;
   box-shadow:0 2px 10px rgba(0,0,0,0.06);
   cursor:pointer;transition:transform 0.12s;
@@ -217,11 +234,11 @@ html,body{height:100%;height:100dvh;background:#0A0818;font-family:'Plus Jakarta
 .tp-thumb img{width:100%;height:100%;object-fit:cover;display:block;}
 .tp-thumb-cap{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(0deg,rgba(0,0,0,0.65),transparent);padding:6px 6px 4px;font-size:9px;color:#fff;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .cat-bubble{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;}
-.cb-icon-wrap{width:64px;height:64px;border-radius:22px;background:#fff;display:flex;align-items:center;justify-content:center;font-size:28px;box-shadow:var(--cs);transition:transform 0.15s;position:relative;}
+.cb-icon-wrap{width:64px;height:64px;border-radius:22px;background:var(--card-bg);display:flex;align-items:center;justify-content:center;font-size:28px;box-shadow:var(--cs);transition:transform 0.15s;position:relative;}
 .cb-icon-wrap:active{transform:scale(0.94);}
 .cb-badge{position:absolute;top:-4px;right:-4px;min-width:20px;height:20px;padding:0 4px;background:var(--green);border-radius:10px;font-size:10px;font-weight:700;color:#fff;display:flex;align-items:center;justify-content:center;border:2px solid var(--peach);box-sizing:border-box;}
 .cb-name{font-size:11px;font-weight:600;color:var(--brown-l);text-align:center;line-height:1.2;}
-.ri-card{display:flex;align-items:center;gap:12px;background:#fff;border-radius:var(--r16);padding:13px 16px;margin-bottom:8px;box-shadow:0 2px 8px rgba(61,43,26,0.06);cursor:pointer;transition:transform 0.12s;}
+.ri-card{display:flex;align-items:center;gap:12px;background:var(--card-bg);border-radius:var(--r16);padding:13px 16px;margin-bottom:8px;box-shadow:0 2px 8px rgba(61,43,26,0.06);cursor:pointer;transition:transform 0.12s;}
 .ri-card:active{transform:scale(0.99);}
 .ri-chk{width:24px;height:24px;border-radius:8px;border:2px solid #E8D5C0;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all 0.15s;font-size:13px;font-weight:700;}
 .ri-chk.done{background:#E07820;border-color:#D4621A;color:#fff;}
@@ -244,7 +261,7 @@ html,body{height:100%;height:100dvh;background:#0A0818;font-family:'Plus Jakarta
 .pl-item-wrap{position:relative;margin:0 16px 8px;border-radius:var(--r16);overflow:hidden;}
 .swipe-del-bg{position:absolute;inset:0;background:var(--red);display:flex;align-items:center;justify-content:flex-end;padding-right:24px;border-radius:var(--r16);}
 .swipe-del-bg span{color:#fff;font-size:13px;font-weight:700;}
-.pl-item{display:flex;align-items:center;gap:12px;background:#fff;border-radius:var(--r16);padding:13px 16px;margin:0 16px 8px;box-shadow:0 2px 8px rgba(61,43,26,0.06);transition:opacity 0.2s,transform 0.2s ease;position:relative;}
+.pl-item{display:flex;align-items:center;gap:12px;background:var(--card-bg);border-radius:var(--r16);padding:13px 16px;margin:0 16px 8px;box-shadow:0 2px 8px rgba(61,43,26,0.06);transition:opacity 0.2s,transform 0.2s ease;position:relative;}
 .pl-item-wrap .pl-item{margin:0;}
 .pl-item.packed{opacity:0.4;}.pl-item.packed .pli-name{text-decoration:line-through;}
 .pli-chk{width:26px;height:26px;border-radius:9px;border:2px solid #E8D5C0;flex-shrink:0;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;font-weight:700;transition:all 0.15s;}
@@ -261,7 +278,7 @@ html,body{height:100%;height:100dvh;background:#0A0818;font-family:'Plus Jakarta
 .st-hero::after{content:'🌲🌲🌲';position:absolute;bottom:-4px;right:10px;font-size:50px;opacity:0.15;letter-spacing:-6px;}
 .st-title{font-size:22px;font-weight:800;color:#fff;letter-spacing:-0.4px;}
 .st-sub{font-size:13px;color:rgba(255,255,255,0.6);margin-top:3px;}
-.st-float{margin:0 16px;margin-top:-48px;background:#fff;border-radius:22px;padding:20px;box-shadow:0 10px 40px rgba(61,43,26,0.14);position:relative;z-index:2;}
+.st-float{margin:0 16px;margin-top:-48px;background:var(--card-bg);border-radius:22px;padding:20px;box-shadow:0 10px 40px rgba(61,43,26,0.14);position:relative;z-index:2;}
 .st-big{text-align:center;padding:6px 0 18px;}
 .st-big-v{font-size:58px;font-weight:800;color:#E07820;line-height:1;}
 .st-big-l{font-size:14px;color:var(--brown-xl);margin-top:6px;font-weight:600;}
@@ -273,7 +290,7 @@ html,body{height:100%;height:100dvh;background:#0A0818;font-family:'Plus Jakarta
 .stp-fill{height:100%;background:linear-gradient(90deg,#4A7C59,#7BAF8A);border-radius:5px;transition:width 0.5s;}
 .stp-lbl{display:flex;justify-content:space-between;font-size:12px;font-weight:600;color:var(--brown-xl);margin-top:6px;}
 .cb-section{padding:20px;}.cb-title{font-size:16px;font-weight:800;color:var(--brown);margin-bottom:14px;}
-.cb-card{background:#fff;border-radius:var(--r16);padding:14px 16px;margin-bottom:8px;box-shadow:0 2px 8px rgba(61,43,26,0.06);}
+.cb-card{background:var(--card-bg);border-radius:var(--r16);padding:14px 16px;margin-bottom:8px;box-shadow:0 2px 8px rgba(61,43,26,0.06);}
 .cb-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
 .cb-ic{width:36px;height:36px;border-radius:11px;background:#E8F4EE;display:flex;align-items:center;justify-content:center;font-size:18px;}
 .cb-nm{font-size:14px;font-weight:700;color:var(--brown);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}.cb-p{font-size:13px;font-weight:800;color:#E07820;}
@@ -281,7 +298,7 @@ html,body{height:100%;height:100dvh;background:#0A0818;font-family:'Plus Jakarta
 .cb-fi{height:100%;background:#3D2A7A;border-radius:3px;}
 
 /* CAT DETAIL */
-.det-hdr{background:#fff;padding:14px 20px;border-radius:0 0 22px 22px;box-shadow:0 2px 12px rgba(61,43,26,0.07);display:flex;align-items:center;gap:12px;}
+.det-hdr{background:var(--card-bg);padding:14px 20px;border-radius:0 0 22px 22px;box-shadow:0 2px 12px rgba(61,43,26,0.07);display:flex;align-items:center;gap:12px;}
 .back-btn{width:36px;height:36px;background:var(--peach-d);border:none;border-radius:12px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;flex-shrink:0;color:var(--brown);}
 .det-cat-ic{font-size:26px;}.det-cat-nm{font-size:18px;font-weight:800;color:var(--brown);}.det-cat-st{font-size:12px;color:var(--brown-xl);}
 
@@ -295,7 +312,7 @@ html,body{height:100%;height:100dvh;background:#0A0818;font-family:'Plus Jakarta
 
 /* summary strip */
 .sh-strip{margin:0 16px;margin-top:-26px;position:relative;z-index:2;display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
-.sh-stat{background:#fff;border-radius:16px;padding:12px 10px;text-align:center;box-shadow:0 6px 24px rgba(61,43,26,0.12);}
+.sh-stat{background:var(--card-bg);border-radius:16px;padding:12px 10px;text-align:center;box-shadow:0 6px 24px rgba(61,43,26,0.12);}
 .sh-stat-v{font-size:20px;font-weight:800;color:var(--brown);}
 .sh-stat-l{font-size:10px;font-weight:600;color:var(--brown-xl);text-transform:uppercase;letter-spacing:0.4px;margin-top:2px;}
 .sh-stat.spend .sh-stat-v{color:#E07820;}
@@ -303,7 +320,7 @@ html,body{height:100%;height:100dvh;background:#0A0818;font-family:'Plus Jakarta
 /* shop item card */
 .sh-item{
   display:flex;align-items:flex-start;gap:12px;
-  background:#fff;border-radius:var(--r16);
+  background:var(--card-bg);border-radius:var(--r16);
   padding:14px 16px;margin:0 16px 10px;
   box-shadow:0 2px 8px rgba(61,43,26,0.06);
   transition:opacity 0.2s;
@@ -397,9 +414,12 @@ html,body{height:100%;height:100dvh;background:#0A0818;font-family:'Plus Jakarta
               <div class="hero-greeting" id="hero-greeting">GOOD MORNING 👋</div>
               <div class="hero-headline">Are You<br>Trip Ready?</div>
             </div>
-            <div id="hero-clock" style="text-align:right;flex-shrink:0;padding-top:2px;">
-              <div id="hero-clock-time" style="font-size:26px;font-weight:800;color:#fff;letter-spacing:-0.5px;line-height:1;">--:--</div>
-              <div id="hero-clock-date" style="font-size:11px;font-weight:600;color:rgba(255,255,255,0.6);margin-top:4px;letter-spacing:0.3px;">---</div>
+            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;flex-shrink:0;">
+              <button class="theme-toggle" id="theme-toggle-btn" onclick="toggleTheme()">🌙</button>
+              <div id="hero-clock" style="text-align:right;">
+                <div id="hero-clock-time" style="font-size:26px;font-weight:800;color:#fff;letter-spacing:-0.5px;line-height:1;">--:--</div>
+                <div id="hero-clock-date" style="font-size:11px;font-weight:600;color:rgba(255,255,255,0.6);margin-top:4px;letter-spacing:0.3px;">---</div>
+              </div>
             </div>
           </div>
           <div class="hero-sub" style="font-size:13px;color:rgba(255,255,255,0.7);margin-top:6px;margin-bottom:20px;font-weight:500;">Never forget your essentials again</div>
@@ -423,7 +443,7 @@ html,body{height:100%;height:100dvh;background:#0A0818;font-family:'Plus Jakarta
         <!-- Weather card -->
         <div id="weather-card" style="display:none;padding:0 16px;margin-top:10px;">
           <div id="wx-label" style="font-size:11px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:6px;padding-left:2px;">Current conditions</div>
-          <div style="background:#fff;border-radius:14px;padding:12px 16px;box-shadow:0 2px 8px rgba(0,0,0,0.06);display:flex;align-items:center;gap:14px;">
+          <div style="background:var(--card-bg);border-radius:14px;padding:12px 16px;box-shadow:0 2px 8px rgba(0,0,0,0.06);display:flex;align-items:center;gap:14px;">
             <div id="wx-icon" style="font-size:32px;">🌤️</div>
             <div style="flex:1;">
               <div style="display:flex;align-items:baseline;gap:8px;">
@@ -453,7 +473,7 @@ html,body{height:100%;height:100dvh;background:#0A0818;font-family:'Plus Jakarta
 
         <!-- templates teaser -->
         <div style="padding:0 16px;margin-top:14px;">
-          <div style="background:#fff;border-radius:var(--r16);padding:14px 16px;box-shadow:var(--cs);display:flex;align-items:center;gap:12px;cursor:pointer;" onclick="navTo('s-templates')">
+          <div style="background:var(--card-bg);border-radius:var(--r16);padding:14px 16px;box-shadow:var(--cs);display:flex;align-items:center;gap:12px;cursor:pointer;" onclick="navTo('s-templates')">
             <div style="width:42px;height:42px;background:#E07820;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;box-shadow:0 4px 14px rgba(224,120,32,0.35);">📋</div>
             <div style="flex:1;">
               <div style="font-size:14px;font-weight:700;color:var(--brown);">Packing Templates</div>
@@ -465,7 +485,7 @@ html,body{height:100%;height:100dvh;background:#0A0818;font-family:'Plus Jakarta
 
         <!-- trip photos teaser -->
         <div style="padding:0 16px;margin-top:14px;">
-          <div style="background:#fff;border-radius:var(--r16);padding:14px 16px;box-shadow:var(--cs);display:flex;align-items:center;gap:12px;cursor:pointer;" onclick="openTripPhotos(activeTripId)">
+          <div style="background:var(--card-bg);border-radius:var(--r16);padding:14px 16px;box-shadow:var(--cs);display:flex;align-items:center;gap:12px;cursor:pointer;" onclick="openTripPhotos(activeTripId)">
             <div style="width:42px;height:42px;background:#E07820;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;box-shadow:0 4px 14px rgba(224,120,32,0.35);">📷</div>
             <div style="flex:1;">
               <div style="font-size:14px;font-weight:700;color:var(--brown);">Trip Photos</div>
@@ -483,7 +503,7 @@ html,body{height:100%;height:100dvh;background:#0A0818;font-family:'Plus Jakarta
 
         <!-- shopping teaser -->
         <div style="padding:0 16px;margin-top:14px;">
-          <div style="background:#fff;border-radius:var(--r16);padding:14px 16px;box-shadow:var(--cs);display:flex;align-items:center;gap:12px;cursor:pointer;" onclick="navTo('s-shop')">
+          <div style="background:var(--card-bg);border-radius:var(--r16);padding:14px 16px;box-shadow:var(--cs);display:flex;align-items:center;gap:12px;cursor:pointer;" onclick="navTo('s-shop')">
             <div style="width:42px;height:42px;background:#EBF2FB;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">🛒</div>
             <div style="flex:1;">
               <div style="font-size:14px;font-weight:700;color:var(--brown);">Shopping List</div>
@@ -730,7 +750,7 @@ html,body{height:100%;height:100dvh;background:#0A0818;font-family:'Plus Jakarta
             <span class="s-link" onclick="navTo('s-shop')" style="font-size:13px;">View all →</span>
           </div>
           <!-- spend summary card -->
-          <div style="background:#fff;border-radius:var(--r16);padding:16px;margin-bottom:10px;box-shadow:0 2px 8px rgba(61,43,26,0.06);">
+          <div style="background:var(--card-bg);border-radius:var(--r16);padding:16px;margin-bottom:10px;box-shadow:0 2px 8px rgba(61,43,26,0.06);">
             <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px;">
               <div style="text-align:center;background:var(--peach-d);border-radius:12px;padding:10px 6px;">
                 <div style="font-size:20px;font-weight:800;color:var(--brown);" id="pr-sh-tot">0</div>
@@ -771,11 +791,11 @@ html,body{height:100%;height:100dvh;background:#0A0818;font-family:'Plus Jakarta
       </div>
       <div class="scroll">
         <div style="padding:16px 16px 0;">
-          <div id="cat-note-display" onclick="editCatNote()" style="background:#fff;border-radius:14px;padding:12px 16px;box-shadow:0 2px 8px rgba(0,0,0,0.06);cursor:pointer;display:flex;align-items:center;gap:10px;">
+          <div id="cat-note-display" onclick="editCatNote()" style="background:var(--card-bg);border-radius:14px;padding:12px 16px;box-shadow:0 2px 8px rgba(0,0,0,0.06);cursor:pointer;display:flex;align-items:center;gap:10px;">
             <span style="font-size:16px;">📝</span>
             <span id="cat-note-text" style="font-size:13px;color:var(--brown-l);flex:1;">Tap to add a note for this category…</span>
           </div>
-          <div id="cat-note-edit" style="display:none;background:#fff;border-radius:14px;padding:12px;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+          <div id="cat-note-edit" style="display:none;background:var(--card-bg);border-radius:14px;padding:12px;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
             <textarea id="cat-note-input" rows="2" placeholder="e.g. Check weather before finalizing…" style="width:100%;border:none;outline:none;font-family:'Plus Jakarta Sans',sans-serif;font-size:16px;color:var(--brown);resize:none;"></textarea>
             <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:8px;">
               <button onclick="cancelCatNote()" style="background:none;border:none;color:var(--brown-xl);font-size:12px;font-weight:600;cursor:pointer;">Cancel</button>
@@ -802,7 +822,7 @@ html,body{height:100%;height:100dvh;background:#0A0818;font-family:'Plus Jakarta
       </div>
       <!-- budget tracker -->
       <div id="budget-tracker" style="padding:0 16px;margin-top:12px;display:none;">
-        <div style="background:#fff;border-radius:14px;padding:12px 16px;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+        <div style="background:var(--card-bg);border-radius:14px;padding:12px 16px;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
           <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;">
             <span style="font-size:12px;font-weight:700;color:var(--brown-l);">Budget</span>
             <span style="font-size:12px;font-weight:700;" id="budget-label">$0 / $0</span>
@@ -1933,6 +1953,25 @@ document.addEventListener('keydown',e=>{
   const cur=document.querySelector('.screen.active');
   if(e.key==='Enter'&&cur){if(cur.id==='s-add')saveItem();else if(cur.id==='s-add-shop')saveShopItem();}
 });
+
+/* ── THEME (dark/light mode) ── */
+function applyTheme(mode){
+  const isDark = mode === 'dark';
+  document.body.classList.toggle('dark', isDark);
+  const btn = document.getElementById('theme-toggle-btn');
+  if(btn) btn.textContent = isDark ? '☀️' : '🌙';
+  try{ localStorage.setItem('camppack-theme', mode); }catch(e){/* localStorage unavailable */}
+}
+function toggleTheme(){
+  const isDark = document.body.classList.contains('dark');
+  applyTheme(isDark ? 'light' : 'dark');
+}
+function initTheme(){
+  let saved = null;
+  try{ saved = localStorage.getItem('camppack-theme'); }catch(e){/* localStorage unavailable */}
+  applyTheme(saved === 'dark' ? 'dark' : 'light');
+}
+initTheme();
 
 function updateGreeting(){
   const h = new Date().getHours();
