@@ -1800,13 +1800,13 @@ function handleTripPhotoSelect(e){
 async function uploadTripPhoto(file){
   const ext=file.name.split('.').pop()||'jpg';
   const fileName=`trip-${Date.now()}-${Math.random().toString(36).slice(2,8)}.${ext}`;
-  const res=await fetch(`${SB}/storage/v1/object/item-photos/${fileName}`,{
+  const res=await fetch(`${SB}/storage/v1/object/trip-photos/${fileName}`,{
     method:'POST',
     headers:{'apikey':KEY,'Authorization':'Bearer '+KEY,'Content-Type':file.type},
     body:file
   });
   if(!res.ok)throw new Error('Photo upload failed');
-  return `${SB}/storage/v1/object/public/item-photos/${fileName}`;
+  return `${SB}/storage/v1/object/public/trip-photos/${fileName}`;
 }
 async function saveTripPhoto(){
   if(!selectedTripPhotoFile){toast('Please choose a photo first');return;}
