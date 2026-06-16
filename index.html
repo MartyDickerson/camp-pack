@@ -95,6 +95,7 @@ html,body{height:100%;height:100dvh;background:#FEF6EC;font-family:'Plus Jakarta
 .sn-stars{display:none;}
 .splash-content{position:absolute;inset:0;z-index:10;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:max(env(safe-area-inset-top,59px),59px) 28px max(env(safe-area-inset-bottom,34px),34px);}
 /* Logo mark — leaf + tent SVG style via CSS */
+.splash-top{display:flex;flex-direction:column;align-items:center;}
 .logo-mark{
   width:90px;height:90px;
   background:linear-gradient(145deg,#3D7A52,#1E4D30);
@@ -120,7 +121,7 @@ html,body{height:100%;height:100dvh;background:#FEF6EC;font-family:'Plus Jakarta
   box-shadow:0 2px 8px rgba(0,0,0,0.3);
 }
 /* Logo wordmark */
-.logo-wordmark{text-align:center;margin-bottom:32px;}
+.logo-wordmark{text-align:center;margin-bottom:0;margin-top:0;}
 .logo-the{font-size:13px;font-weight:600;color:rgba(255,255,255,0.6);letter-spacing:4px;text-transform:uppercase;margin-bottom:4px;}
 .logo-title{font-size:28px;font-weight:800;color:#fff;letter-spacing:1.5px;text-transform:uppercase;line-height:1.15;text-shadow:0 2px 20px rgba(0,0,0,0.5);}
 .logo-title span{display:block;}
@@ -305,21 +306,25 @@ html,body{height:100%;height:100dvh;background:#FEF6EC;font-family:'Plus Jakarta
         <div class="sn-tent">⛺</div>
       </div>
       <div class="splash-content">
-        <div class="logo-mark">
-          <div class="logo-mark-leaf"></div>
-          <div class="logo-mark-inner">
-            <span class="logo-mark-icon">⛺</span>
+        <!-- Logo + words grouped at top -->
+        <div class="splash-top">
+          <div class="logo-mark">
+            <div class="logo-mark-leaf"></div>
+            <div class="logo-mark-inner">
+              <span class="logo-mark-icon">⛺</span>
+            </div>
+          </div>
+          <div class="logo-wordmark">
+            <div class="logo-the">The</div>
+            <div class="logo-title">
+              <span>Camping</span>
+              <span class="accent">Essentials</span>
+            </div>
+            <div class="logo-divider"></div>
+            <div class="logo-sub">Your Camp Companion</div>
           </div>
         </div>
-        <div class="logo-wordmark">
-          <div class="logo-the">The</div>
-          <div class="logo-title">
-            <span>Camping</span>
-            <span class="accent">Essentials</span>
-          </div>
-          <div class="logo-divider"></div>
-          <div class="logo-sub">Your Camp Companion</div>
-        </div>
+        <!-- Button at bottom -->
         <div class="splash-btn-wrap">
           <button class="splash-explore" onclick="enterApp()">Let's Explore</button>
         </div>
