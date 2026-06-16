@@ -424,6 +424,24 @@ html,body{height:100%;height:100dvh;background:#0A0818;font-family:'Plus Jakarta
           </div>
         </div>
 
+        <!-- Weather card -->
+        <div id="weather-card" style="display:none;padding:0 16px;margin-top:10px;">
+          <div style="background:#fff;border-radius:14px;padding:12px 16px;box-shadow:0 2px 8px rgba(0,0,0,0.06);display:flex;align-items:center;gap:14px;">
+            <div id="wx-icon" style="font-size:32px;">🌤️</div>
+            <div style="flex:1;">
+              <div style="display:flex;align-items:baseline;gap:8px;">
+                <span id="wx-temp" style="font-size:20px;font-weight:800;color:var(--brown);">--°</span>
+                <span id="wx-desc" style="font-size:12px;color:var(--brown-xl);font-weight:600;">Loading…</span>
+              </div>
+              <div id="wx-range" style="font-size:11px;color:var(--brown-xl);margin-top:2px;">H: --° L: --°</div>
+            </div>
+            <div id="wx-rain" style="text-align:center;">
+              <div style="font-size:11px;color:var(--blue);font-weight:700;" id="wx-rain-pct">0%</div>
+              <div style="font-size:9px;color:var(--brown-xl);text-transform:uppercase;">rain</div>
+            </div>
+          </div>
+        </div>
+
         <!-- stat strip -->
         <div class="stat-strip">
           <div class="ss-item"><div class="ss-pct" id="h-pct">0%</div><div class="ss-l">Packed</div></div>
@@ -505,6 +523,14 @@ html,body{height:100%;height:100dvh;background:#0A0818;font-family:'Plus Jakarta
         <div class="fgrp"><label class="fl">Trip Name</label><input class="fi" id="trip-name" type="text" placeholder="e.g. Yosemite Weekend…" maxlength="80"></div>
         <div class="fgrp"><label class="fl">Trip Date</label><input class="fi" id="trip-date" type="date"></div>
         <div class="fgrp"><label class="fl">Location</label><input class="fi" id="trip-location" type="text" placeholder="e.g. Yosemite National Park" maxlength="100"></div>
+        <div class="fgrp">
+          <label class="fl">Coordinates (for weather)</label>
+          <div class="price-row">
+            <input class="fi" id="trip-lat" type="number" placeholder="Latitude" step="0.000001">
+            <input class="fi" id="trip-lng" type="number" placeholder="Longitude" step="0.000001">
+          </div>
+          <div style="font-size:11px;color:var(--brown-xl);margin-top:6px;">Tip: search "[location] coordinates" on Google to find these</div>
+        </div>
         <div class="fgrp"><label class="fl">Budget (optional)</label><input class="fi" id="trip-budget" type="number" placeholder="$ Total budget" min="0" step="0.01"></div>
         <button class="btn-primary" id="btn-save-trip" onclick="saveTrip()" style="margin-bottom:30px;">Save Trip</button>
       </div></div>
@@ -520,9 +546,15 @@ html,body{height:100%;height:100dvh;background:#0A0818;font-family:'Plus Jakarta
         </div>
       </div>
       <div class="scroll"><div id="templates-list" style="padding:16px;padding-bottom:30px;"></div></div>
-    </div>    <div class="screen s-pack" id="s-pack">
+    </div>
+
+    <!-- PACK LIST -->
+    <div class="screen s-pack" id="s-pack">
       <div class="screen-hdr-white">
-        <div class="pl-title">Pack List</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div class="pl-title">Pack List</div>
+          <button onclick="shareList()" style="background:var(--green-pale);border:none;border-radius:12px;width:38px;height:38px;display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer;">📤</button>
+        </div>
         <div class="pl-sub" id="pl-sub">Loading…</div>
         <div class="pl-search"><span style="font-size:15px;">🔍</span><input type="text" placeholder="Search items…" id="pl-search" oninput="renderPack()"></div>
         <div class="pl-chips">
@@ -545,6 +577,12 @@ html,body{height:100%;height:100dvh;background:#0A0818;font-family:'Plus Jakarta
         </div>
       </div>
       <div class="scroll"><div class="form-wrap">
+        <!-- AI Suggest button -->
+        <div class="fgrp">
+          <button type="button" id="ai-suggest-btn" onclick="openAiSuggest()" style="width:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:12px;background:linear-gradient(135deg,var(--green),var(--green-d));border:none;border-radius:14px;color:#fff;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;">
+            ✨ Suggest items for me
+          </button>
+        </div>
         <div class="fgrp"><label class="fl">Item Name</label><input class="fi" id="add-name" type="text" placeholder="e.g. Sleeping bag…" maxlength="80" autocomplete="off"></div>
         <div class="fgrp"><label class="fl">Category</label><div class="cat-grid" id="add-cat-grid"></div></div>
         <div class="fgrp"><label class="fl">Quantity</label>
@@ -556,8 +594,45 @@ html,body{height:100%;height:100dvh;background:#0A0818;font-family:'Plus Jakarta
             <div class="tog" id="ess-tog"><div class="tog-dot"></div></div>
           </div>
         </div>
+        <!-- Photo upload -->
+        <div class="fgrp">
+          <label class="fl">Photo (optional)</label>
+          <div id="photo-upload-zone" onclick="document.getElementById('photo-input').click()" style="border:2px dashed #DDD0C0;border-radius:14px;padding:20px;text-align:center;cursor:pointer;background:#FEFAF5;">
+            <div id="photo-preview-wrap" style="display:none;margin-bottom:10px;">
+              <img id="photo-preview" style="max-width:100%;max-height:140px;border-radius:10px;object-fit:cover;">
+            </div>
+            <div id="photo-placeholder">
+              <div style="font-size:28px;margin-bottom:4px;">📷</div>
+              <div style="font-size:13px;font-weight:600;color:var(--brown-l);">Tap to add a photo</div>
+            </div>
+          </div>
+          <input type="file" id="photo-input" accept="image/*" style="display:none;" onchange="handlePhotoSelect(event)">
+        </div>
         <div class="fgrp"><label class="fl">Notes</label><input class="fi" id="add-notes" type="text" placeholder="Optional notes…" maxlength="120"></div>
         <button class="btn-primary" id="btn-add" onclick="saveItem()" style="margin-bottom:30px;">+ Add to Pack List</button>
+      </div></div>
+    </div>
+
+    <!-- AI SUGGEST MODAL SCREEN -->
+    <div class="screen s-ai-suggest" id="s-ai-suggest">
+      <div class="screen-hdr-white">
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <button style="font-size:14px;color:var(--brown-xl);background:none;border:none;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-weight:600;" onclick="navBack()">Close</button>
+          <div style="font-size:18px;font-weight:800;color:var(--brown);">✨ Suggestions</div>
+          <div style="width:50px;"></div>
+        </div>
+      </div>
+      <div class="scroll"><div class="form-wrap">
+        <div class="fgrp">
+          <label class="fl">Trip Type</label>
+          <div class="cat-grid" id="ai-trip-type-grid" style="grid-template-columns:repeat(2,1fr);">
+            <div class="cat-opt" data-ai-type="weekend" onclick="selectAiType(this,'weekend')"><div class="co-icon">🏖️</div><div class="co-name">Weekend Trip</div></div>
+            <div class="cat-opt" data-ai-type="backpacking" onclick="selectAiType(this,'backpacking')"><div class="co-icon">🥾</div><div class="co-name">Backpacking</div></div>
+            <div class="cat-opt" data-ai-type="car" onclick="selectAiType(this,'car')"><div class="co-icon">🚙</div><div class="co-name">Car Camping</div></div>
+            <div class="cat-opt" data-ai-type="winter" onclick="selectAiType(this,'winter')"><div class="co-icon">❄️</div><div class="co-name">Cold Weather</div></div>
+          </div>
+        </div>
+        <div id="ai-suggestions-list"></div>
       </div></div>
     </div>
 
@@ -626,7 +701,22 @@ html,body{height:100%;height:100dvh;background:#0A0818;font-family:'Plus Jakarta
         <span class="det-cat-ic" id="det-ic"></span>
         <div><div class="det-cat-nm" id="det-nm"></div><div class="det-cat-st" id="det-st"></div></div>
       </div>
-      <div class="scroll"><div id="det-list" style="padding:16px;padding-bottom:30px;"></div></div>
+      <div class="scroll">
+        <div style="padding:16px 16px 0;">
+          <div id="cat-note-display" onclick="editCatNote()" style="background:#fff;border-radius:14px;padding:12px 16px;box-shadow:0 2px 8px rgba(0,0,0,0.06);cursor:pointer;display:flex;align-items:center;gap:10px;">
+            <span style="font-size:16px;">📝</span>
+            <span id="cat-note-text" style="font-size:13px;color:var(--brown-l);flex:1;">Tap to add a note for this category…</span>
+          </div>
+          <div id="cat-note-edit" style="display:none;background:#fff;border-radius:14px;padding:12px;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+            <textarea id="cat-note-input" rows="2" placeholder="e.g. Check weather before finalizing…" style="width:100%;border:none;outline:none;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;color:var(--brown);resize:none;"></textarea>
+            <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:8px;">
+              <button onclick="cancelCatNote()" style="background:none;border:none;color:var(--brown-xl);font-size:12px;font-weight:600;cursor:pointer;">Cancel</button>
+              <button onclick="saveCatNote()" style="background:var(--green);color:#fff;border:none;border-radius:8px;padding:6px 14px;font-size:12px;font-weight:700;cursor:pointer;">Save</button>
+            </div>
+          </div>
+        </div>
+        <div id="det-list" style="padding:16px;padding-bottom:30px;"></div>
+      </div>
     </div>
 
     <!-- ══════ SHOPPING LIST ══════ -->
@@ -750,6 +840,7 @@ function navTo(id){
   if(id==='s-trips')renderTrips();
   if(id==='s-add-trip')resetTripForm();
   if(id==='s-templates')renderTemplates();
+  if(id==='s-ai-suggest')resetAiSuggest();
 }
 function navBack(){navTo(prevSc||'s-home');}
 
@@ -836,6 +927,7 @@ function renderPack(){
       <div class="swipe-del-bg"><span>Delete</span></div>
       <div class="pl-item ${it.packed?'packed':''}" id="pli-${it.id}" data-id="${it.id}" data-type="pack">
         <div class="pli-chk ${it.packed?'done':''}" onclick="toggleItem('${it.id}',${!it.packed})">${it.packed?'✓':''}</div>
+        ${it.photo_url?`<img src="${it.photo_url}" style="width:32px;height:32px;border-radius:8px;object-fit:cover;flex-shrink:0;">`:''}
         <div class="pli-name">${esc(it.name)}</div>
         ${it.essential?'<span class="ess-tag" style="font-size:9px;padding:2px 7px;">★</span>':''}
         <div class="pli-qty"><button class="pqi" onclick="chQty('${it.id}',${it.quantity-1})">−</button><span>${it.quantity}</span><button class="pqi" onclick="chQty('${it.id}',${it.quantity+1})">+</button></div>
@@ -975,6 +1067,7 @@ async function saveShopItem(){
 }
 
 /* ── ADD PACK ITEM ── */
+let selectedPhotoFile=null;
 function resetAdd(){
   document.getElementById('add-name').value='';document.getElementById('add-notes').value='';
   addQty=1;addCatId=null;addEss=false;
@@ -982,6 +1075,34 @@ function resetAdd(){
   document.getElementById('ess-tog').classList.remove('on');
   document.getElementById('ess-row').classList.remove('on');
   document.querySelectorAll('#add-cat-grid .cat-opt').forEach(e=>e.classList.remove('sel'));
+  selectedPhotoFile=null;
+  document.getElementById('photo-input').value='';
+  document.getElementById('photo-preview-wrap').style.display='none';
+  document.getElementById('photo-placeholder').style.display='block';
+}
+function handlePhotoSelect(e){
+  const file=e.target.files[0];
+  if(!file)return;
+  if(file.size > 5*1024*1024){toast('Photo must be under 5MB');return;}
+  selectedPhotoFile=file;
+  const reader=new FileReader();
+  reader.onload=function(ev){
+    document.getElementById('photo-preview').src=ev.target.result;
+    document.getElementById('photo-preview-wrap').style.display='block';
+    document.getElementById('photo-placeholder').style.display='none';
+  };
+  reader.readAsDataURL(file);
+}
+async function uploadPhoto(file){
+  const ext=file.name.split('.').pop()||'jpg';
+  const fileName=`item-${Date.now()}-${Math.random().toString(36).slice(2,8)}.${ext}`;
+  const res=await fetch(`${SB}/storage/v1/object/item-photos/${fileName}`,{
+    method:'POST',
+    headers:{'apikey':KEY,'Authorization':'Bearer '+KEY,'Content-Type':file.type},
+    body:file
+  });
+  if(!res.ok)throw new Error('Photo upload failed');
+  return `${SB}/storage/v1/object/public/item-photos/${fileName}`;
 }
 function buildAddCatGrid(){
   document.getElementById('add-cat-grid').innerHTML=cats.map(c=>`
@@ -998,7 +1119,12 @@ async function saveItem(){
   const notes=document.getElementById('add-notes').value.trim();
   const btn=document.getElementById('btn-add');btn.disabled=true;
   try{
-    const[ni]=await api('POST','items?select=*,categories(name,icon)',{name,category_id:addCatId||null,quantity:addQty,essential:addEss,packed:false,notes:notes||null,trip_id:activeTripId});
+    let photo_url=null;
+    if(selectedPhotoFile){
+      toast('Uploading photo…');
+      photo_url=await uploadPhoto(selectedPhotoFile);
+    }
+    const[ni]=await api('POST','items?select=*,categories(name,icon)',{name,category_id:addCatId||null,quantity:addQty,essential:addEss,packed:false,notes:notes||null,trip_id:activeTripId,photo_url});
     items.unshift(ni);renderHome();renderPack();syncStats();
     toast('✓ '+name+' added!');navTo('s-pack');
   }catch(e){toast('Error: '+e.message);}
@@ -1069,10 +1195,42 @@ function openDet(id){
   const ci=items.filter(x=>x.category_id===id);
   document.getElementById('det-st').textContent=`${ci.length} items · ${ci.filter(x=>x.packed).length} packed`;
   renderDetList();
+  renderCatNote();
   const sb=document.getElementById('sbar');sb.className='sbar on-cream';
   document.querySelector('.screen.active').classList.remove('active');
   document.getElementById('s-det').classList.add('active');
   document.querySelectorAll('.ni').forEach(b=>b.classList.remove('active'));
+}
+function renderCatNote(){
+  const c=cats.find(x=>x.id===detCatId);if(!c)return;
+  document.getElementById('cat-note-edit').style.display='none';
+  document.getElementById('cat-note-display').style.display='flex';
+  const textEl=document.getElementById('cat-note-text');
+  if(c.note&&c.note.trim()){
+    textEl.textContent=c.note;
+    textEl.style.color='var(--brown)';
+  }else{
+    textEl.textContent='Tap to add a note for this category…';
+    textEl.style.color='var(--brown-xl)';
+  }
+}
+function editCatNote(){
+  const c=cats.find(x=>x.id===detCatId);if(!c)return;
+  document.getElementById('cat-note-input').value=c.note||'';
+  document.getElementById('cat-note-display').style.display='none';
+  document.getElementById('cat-note-edit').style.display='block';
+  document.getElementById('cat-note-input').focus();
+}
+function cancelCatNote(){renderCatNote();}
+async function saveCatNote(){
+  const c=cats.find(x=>x.id===detCatId);if(!c)return;
+  const note=document.getElementById('cat-note-input').value.trim()||null;
+  try{
+    await api('PATCH',`categories?id=eq.${c.id}`,{note});
+    c.note=note;
+    renderCatNote();
+    toast('Note saved');
+  }catch(e){toast('Error saving note: '+e.message);}
 }
 function renderDetList(){
   const ci=items.filter(x=>x.category_id===detCatId);
@@ -1136,6 +1294,65 @@ function renderTripBanner(){
     dateEl.textContent=t.location||'No date set — tap to add';
     countEl.style.display='none';
   }
+  loadWeather(t);
+}
+
+/* ── WEATHER (Open-Meteo, no API key required) ── */
+let weatherCache={};
+async function loadWeather(trip){
+  const card=document.getElementById('weather-card');
+  if(!trip.latitude || !trip.longitude){card.style.display='none';return;}
+  const cacheKey=trip.id+':'+trip.latitude+':'+trip.longitude;
+  if(weatherCache[cacheKey]){
+    renderWeather(weatherCache[cacheKey]);
+    return;
+  }
+  try{
+    const url=`https://api.open-meteo.com/v1/forecast?latitude=${trip.latitude}&longitude=${trip.longitude}&current=temperature_2m,precipitation,weather_code&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max&temperature_unit=fahrenheit&timezone=auto&forecast_days=1`;
+    const res=await fetch(url);
+    if(!res.ok)throw new Error('Weather fetch failed');
+    const data=await res.json();
+    weatherCache[cacheKey]=data;
+    renderWeather(data);
+  }catch(e){
+    card.style.display='none';
+  }
+}
+function weatherEmoji(code){
+  if(code===0)return '☀️';
+  if(code<=3)return '⛅';
+  if(code<=49)return '🌫️';
+  if(code<=59)return '🌦️';
+  if(code<=69)return '🌧️';
+  if(code<=79)return '🌨️';
+  if(code<=99)return '⛈️';
+  return '🌤️';
+}
+function weatherDesc(code){
+  if(code===0)return 'Clear sky';
+  if(code<=3)return 'Partly cloudy';
+  if(code<=49)return 'Foggy';
+  if(code<=59)return 'Drizzle';
+  if(code<=69)return 'Rainy';
+  if(code<=79)return 'Snowy';
+  if(code<=99)return 'Stormy';
+  return 'Unknown';
+}
+function renderWeather(data){
+  const card=document.getElementById('weather-card');
+  if(!data.current){card.style.display='none';return;}
+  card.style.display='block';
+  const code=data.current.weather_code;
+  document.getElementById('wx-icon').textContent=weatherEmoji(code);
+  document.getElementById('wx-temp').textContent=Math.round(data.current.temperature_2m)+'°';
+  document.getElementById('wx-desc').textContent=weatherDesc(code);
+  if(data.daily){
+    const hi=Math.round(data.daily.temperature_2m_max[0]);
+    const lo=Math.round(data.daily.temperature_2m_min[0]);
+    document.getElementById('wx-range').textContent=`H: ${hi}° L: ${lo}°`;
+    const rain=data.daily.precipitation_probability_max[0];
+    document.getElementById('wx-rain-pct').textContent=rain+'%';
+  }
 }
 function daysUntil(dateStr){
   const today=new Date();today.setHours(0,0,0,0);
@@ -1187,6 +1404,8 @@ function resetTripForm(){
   document.getElementById('trip-name').value='';
   document.getElementById('trip-date').value='';
   document.getElementById('trip-location').value='';
+  document.getElementById('trip-lat').value='';
+  document.getElementById('trip-lng').value='';
   document.getElementById('trip-budget').value='';
 }
 function editTrip(id){
@@ -1197,6 +1416,8 @@ function editTrip(id){
   document.getElementById('trip-name').value=t.name||'';
   document.getElementById('trip-date').value=t.trip_date||'';
   document.getElementById('trip-location').value=t.location||'';
+  document.getElementById('trip-lat').value=t.latitude||'';
+  document.getElementById('trip-lng').value=t.longitude||'';
   document.getElementById('trip-budget').value=t.budget||'';
   navTo('s-add-trip');
 }
@@ -1223,17 +1444,21 @@ async function saveTrip(){
   if(!name){document.getElementById('trip-name').focus();toast('Please enter a trip name');return;}
   const trip_date=document.getElementById('trip-date').value||null;
   const location=document.getElementById('trip-location').value.trim()||null;
+  const latRaw=document.getElementById('trip-lat').value;
+  const lngRaw=document.getElementById('trip-lng').value;
+  const latitude=latRaw?parseFloat(latRaw):null;
+  const longitude=lngRaw?parseFloat(lngRaw):null;
   const budgetRaw=document.getElementById('trip-budget').value;
   const budget=budgetRaw?parseFloat(budgetRaw):null;
   const btn=document.getElementById('btn-save-trip');btn.disabled=true;
   try{
     if(editingTripId){
-      const[ut]=await api('PATCH',`trips?id=eq.${editingTripId}&select=*`,{name,trip_date,location,budget});
+      const[ut]=await api('PATCH',`trips?id=eq.${editingTripId}&select=*`,{name,trip_date,location,latitude,longitude,budget});
       const idx=trips.findIndex(t=>t.id===editingTripId);
       if(idx>=0)trips[idx]=ut;
       toast('Trip updated!');
     }else{
-      const[nt]=await api('POST','trips?select=*',{name,trip_date,location,budget,is_active:false});
+      const[nt]=await api('POST','trips?select=*',{name,trip_date,location,latitude,longitude,budget,is_active:false});
       trips.push(nt);
       toast('Trip created!');
     }
@@ -1243,7 +1468,155 @@ async function saveTrip(){
   finally{btn.disabled=false;}
 }
 
-/* ── TEMPLATES ── */
+/* ── AI-STYLE SUGGESTIONS (curated rule-based, no external API needed) ── */
+const AI_SUGGESTIONS={
+  weekend:[
+    {name:'Portable phone charger',cat:'Tools & Gear',ess:false},
+    {name:'Bug spray',cat:'Hygiene',ess:true},
+    {name:'Camp pillow',cat:'Sleeping',ess:false},
+    {name:'Folding camp table',cat:'Tools & Gear',ess:false},
+    {name:'Marshmallows & skewers',cat:'Food & Water',ess:false},
+    {name:'Trash bags',cat:'Tools & Gear',ess:true},
+    {name:'Hand sanitizer',cat:'Hygiene',ess:true}
+  ],
+  backpacking:[
+    {name:'Bear canister / bag',cat:'Food & Water',ess:true},
+    {name:'Lightweight cookset',cat:'Cooking',ess:true},
+    {name:'Blister kit',cat:'Safety & First Aid',ess:true},
+    {name:'Emergency whistle',cat:'Safety & First Aid',ess:false},
+    {name:'Quick-dry towel',cat:'Hygiene',ess:false},
+    {name:'Duct tape (small roll)',cat:'Tools & Gear',ess:false},
+    {name:'Electrolyte tablets',cat:'Food & Water',ess:false}
+  ],
+  car:[
+    {name:'Extension cord',cat:'Tools & Gear',ess:false},
+    {name:'Camp rug / mat',cat:'Shelter',ess:false},
+    {name:'Cast iron skillet',cat:'Cooking',ess:false},
+    {name:'String lights',cat:'Lighting',ess:false},
+    {name:'Cooler ice packs',cat:'Cooking',ess:true},
+    {name:'Folding shovel',cat:'Tools & Gear',ess:false},
+    {name:'Extra tarps',cat:'Shelter',ess:false}
+  ],
+  winter:[
+    {name:'Thermal base layers',cat:'Clothing',ess:true},
+    {name:'Hand warmers',cat:'Clothing',ess:true},
+    {name:'Insulated sleeping pad',cat:'Sleeping',ess:true},
+    {name:'Wool socks (extra pairs)',cat:'Clothing',ess:true},
+    {name:'Gloves / mittens',cat:'Clothing',ess:true},
+    {name:'Beanie / warm hat',cat:'Clothing',ess:true},
+    {name:'4-season tent',cat:'Shelter',ess:true}
+  ]
+};
+let selectedAiItems=new Set();
+function resetAiSuggest(){
+  selectedAiItems.clear();
+  document.querySelectorAll('#ai-trip-type-grid .cat-opt').forEach(e=>e.classList.remove('sel'));
+  document.getElementById('ai-suggestions-list').innerHTML='';
+}
+function openAiSuggest(){navTo('s-ai-suggest');}
+function selectAiType(el,type){
+  document.querySelectorAll('#ai-trip-type-grid .cat-opt').forEach(e=>e.classList.remove('sel'));
+  el.classList.add('sel');
+  renderAiSuggestions(type);
+}
+function renderAiSuggestions(type){
+  const suggestions=AI_SUGGESTIONS[type]||[];
+  const existingNames=new Set(items.map(i=>i.name.toLowerCase()));
+  const filtered=suggestions.filter(s=>!existingNames.has(s.name.toLowerCase()));
+  selectedAiItems=new Set(filtered.map(s=>s.name));
+  const el=document.getElementById('ai-suggestions-list');
+  if(!filtered.length){
+    el.innerHTML='<div class="empty"><div class="empty-em">✅</div><div class="empty-t">You\'re all set!</div><div class="empty-s">All suggested items are already on your list</div></div>';
+    return;
+  }
+  el.innerHTML=`
+    <div class="fgrp">
+      <label class="fl">Suggested items (tap to toggle)</label>
+      <div id="ai-items-grid"></div>
+    </div>
+    <button class="btn-primary" onclick="addAiSuggestions()" style="margin-bottom:30px;">+ Add Selected Items</button>
+  `;
+  const grid=document.getElementById('ai-items-grid');
+  grid.innerHTML=filtered.map(s=>`
+    <div class="ess-row on" data-name="${esc(s.name)}" onclick="toggleAiItem(this,'${esc(s.name)}')" style="margin-bottom:8px;cursor:pointer;">
+      <div class="er-left">
+        <span class="er-main">${esc(s.name)}</span>
+        <span class="er-sub">${esc(s.cat)}${s.ess?' · Essential':''}</span>
+      </div>
+      <div class="tog on"><div class="tog-dot"></div></div>
+    </div>
+  `).join('');
+}
+function toggleAiItem(el,name){
+  if(selectedAiItems.has(name)){
+    selectedAiItems.delete(name);
+    el.classList.remove('on');
+    el.querySelector('.tog').classList.remove('on');
+  }else{
+    selectedAiItems.add(name);
+    el.classList.add('on');
+    el.querySelector('.tog').classList.add('on');
+  }
+}
+async function addAiSuggestions(){
+  const activeType=document.querySelector('#ai-trip-type-grid .cat-opt.sel');
+  if(!activeType){toast('Pick a trip type first');return;}
+  const type=activeType.dataset.aiType;
+  const suggestions=(AI_SUGGESTIONS[type]||[]).filter(s=>selectedAiItems.has(s.name));
+  if(!suggestions.length){toast('No items selected');return;}
+  try{
+    const payload=suggestions.map(s=>{
+      const cat=cats.find(c=>c.name===s.cat);
+      return{name:s.name,category_id:cat?cat.id:null,quantity:1,essential:s.ess,packed:false,trip_id:activeTripId};
+    });
+    const created=await api('POST','items?select=*,categories(name,icon)',payload);
+    items=[...created,...items];
+    renderHome();renderPack();syncStats();
+    toast('✓ Added '+created.length+' suggested items');
+    navTo('s-pack');
+  }catch(e){toast('Error: '+e.message);}
+}
+
+/* ── SHARE / EXPORT ── */
+function buildShareText(){
+  const trip=getActiveTrip();
+  let txt=`🏕️ ${trip?trip.name:'Camping Trip'} — Pack List
+`;
+  if(trip&&trip.trip_date)txt+=`📅 ${formatDate(trip.trip_date)}
+`;
+  if(trip&&trip.location)txt+=`📍 ${trip.location}
+`;
+  txt+='\n';
+  const grps={};
+  items.forEach(it=>{const k=it.category_id||'__';if(!grps[k])grps[k]=[];grps[k].push(it);});
+  [...cats.map(c=>c.id),'__'].forEach(cid=>{
+    const g=grps[cid];if(!g||!g.length)return;
+    const c=cats.find(x=>x.id===cid);
+    txt+=`${c?c.icon+' '+c.name:'Uncategorized'}
+`;
+    g.forEach(it=>{
+      txt+=`${it.packed?'☑':'☐'} ${it.name}${it.quantity>1?' (x'+it.quantity+')':''}${it.essential?' ⭐':''}
+`;
+    });
+    txt+='\n';
+  });
+  const packed=items.filter(i=>i.packed).length;
+  txt+=`Progress: ${packed}/${items.length} packed`;
+  return txt;
+}
+async function shareList(){
+  const text=buildShareText();
+  if(navigator.share){
+    try{await navigator.share({title:'Camping Pack List',text});return;}
+    catch(e){/* fall through to copy */}
+  }
+  try{
+    await navigator.clipboard.writeText(text);
+    toast('📋 Copied to clipboard!');
+  }catch(e){
+    toast('Could not copy — try again');
+  }
+}
 function renderTemplates(){
   const el=document.getElementById('templates-list');
   if(!templates.length){el.innerHTML='<div class="empty"><div class="empty-em">📋</div><div class="empty-t">No templates yet</div></div>';return;}
