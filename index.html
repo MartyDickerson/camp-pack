@@ -350,7 +350,7 @@ html,body{height:100%;height:100dvh;background:#0D2B22;font-family:'Plus Jakarta
         </div>
         <div class="hero-overlay"></div>
         <div class="hero-overlay-content">
-          <div class="hero-greeting">GOOD MORNING 👋</div>
+          <div class="hero-greeting" id="hero-greeting">GOOD MORNING 👋</div>
           <div class="hero-headline">Are You<br>Trip Ready?</div>
           <div class="hero-sub" style="font-size:13px;color:rgba(255,255,255,0.7);margin-top:6px;margin-bottom:20px;font-weight:500;">Never forget your essentials again</div>
           <div class="hero-search"><span style="font-size:15px;opacity:0.6;">🔍</span><input type="text" placeholder="Search your gear…" readonly onclick="navTo('s-pack')"></div>
@@ -952,6 +952,22 @@ document.addEventListener('keydown',e=>{
   if(e.key==='Enter'&&cur){if(cur.id==='s-add')saveItem();else if(cur.id==='s-add-shop')saveShopItem();}
 });
 
+function updateGreeting(){
+  const h = new Date().getHours();
+  let text, emoji;
+  if(h >= 5 && h < 12){
+    text = 'GOOD MORNING'; emoji = '☀️';
+  } else if(h >= 12 && h < 17){
+    text = 'GOOD AFTERNOON'; emoji = '⛅';
+  } else if(h >= 17 && h < 21){
+    text = 'GOOD EVENING'; emoji = '🌅';
+  } else {
+    text = 'GOOD NIGHT'; emoji = '🌙';
+  }
+  const el = document.getElementById('hero-greeting');
+  if(el) el.textContent = text + ' ' + emoji;
+}
+
 function enterApp(){
   const splash=document.getElementById('s-splash');
   // Show nav + sbar first
@@ -967,6 +983,8 @@ function enterApp(){
   },600);
 }
 boot();
+updateGreeting();
+setInterval(updateGreeting, 60000);
 </script>
 </body>
 </html>
