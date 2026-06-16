@@ -210,6 +210,12 @@ html,body{height:100%;height:100dvh;background:#0A0818;font-family:'Plus Jakarta
 .template-name{font-size:16px;font-weight:800;color:var(--brown);}
 .template-desc{font-size:12px;color:var(--brown-xl);margin-top:3px;}
 .template-count{font-size:11px;font-weight:600;color:var(--amber-l);margin-top:8px;}
+
+/* trip photo grid */
+.tp-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.tp-thumb{position:relative;border-radius:12px;overflow:hidden;aspect-ratio:1;cursor:pointer;background:#EEE;}
+.tp-thumb img{width:100%;height:100%;object-fit:cover;display:block;}
+.tp-thumb-cap{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(0deg,rgba(0,0,0,0.65),transparent);padding:6px 6px 4px;font-size:9px;color:#fff;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .cat-bubble{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;}
 .cb-icon-wrap{width:64px;height:64px;border-radius:22px;background:#fff;display:flex;align-items:center;justify-content:center;font-size:28px;box-shadow:var(--cs);transition:transform 0.15s;position:relative;}
 .cb-icon-wrap:active{transform:scale(0.94);}
@@ -457,6 +463,18 @@ html,body{height:100%;height:100dvh;background:#0A0818;font-family:'Plus Jakarta
           </div>
         </div>
 
+        <!-- trip photos teaser -->
+        <div style="padding:0 16px;margin-top:14px;">
+          <div style="background:#fff;border-radius:var(--r16);padding:14px 16px;box-shadow:var(--cs);display:flex;align-items:center;gap:12px;cursor:pointer;" onclick="openTripPhotos(activeTripId)">
+            <div style="width:42px;height:42px;background:#FDEEE0;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">📷</div>
+            <div style="flex:1;">
+              <div style="font-size:14px;font-weight:700;color:var(--brown);">Trip Photos</div>
+              <div style="font-size:12px;color:var(--brown-xl);margin-top:1px;" id="h-photos-sub">Capture memories from this trip</div>
+            </div>
+            <div style="font-size:16px;color:var(--brown-xl);">→</div>
+          </div>
+        </div>
+
         <!-- categories -->
         <div style="margin-top:18px;">
           <div class="section-hdr"><span class="s-title">Categories</span><span class="s-link" onclick="navTo('s-pack')">See all →</span></div>
@@ -537,6 +555,60 @@ html,body{height:100%;height:100dvh;background:#0A0818;font-family:'Plus Jakarta
         </div>
       </div>
       <div class="scroll"><div id="templates-list" style="padding:16px;padding-bottom:30px;"></div></div>
+    </div>
+
+    <!-- ══════ TRIP PHOTOS GALLERY ══════ -->
+    <div class="screen s-trip-photos" id="s-trip-photos">
+      <div class="screen-hdr-white" style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
+        <div style="display:flex;align-items:center;gap:12px;min-width:0;">
+          <button class="back-btn" onclick="navBack()">←</button>
+          <div style="min-width:0;">
+            <div style="font-size:18px;font-weight:800;color:var(--brown);">Trip Photos</div>
+            <div style="font-size:12px;color:var(--brown-xl);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" id="tp-trip-name">Trip</div>
+          </div>
+        </div>
+        <button onclick="navTo('s-add-photo')" style="background:var(--amber-l);border:none;border-radius:12px;width:38px;height:38px;display:flex;align-items:center;justify-content:center;font-size:18px;color:#fff;cursor:pointer;flex-shrink:0;">+</button>
+      </div>
+      <div class="scroll"><div id="tp-grid" style="padding:16px;padding-bottom:30px;"></div></div>
+    </div>
+
+    <!-- ══════ ADD PHOTO ══════ -->
+    <div class="screen s-add-photo" id="s-add-photo">
+      <div class="screen-hdr-white">
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <button style="font-size:14px;color:var(--brown-xl);background:none;border:none;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-weight:600;" onclick="navBack()">Cancel</button>
+          <div style="font-size:18px;font-weight:800;color:var(--brown);">Add Photo</div>
+          <button style="font-size:14px;color:var(--amber-l);background:none;border:none;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;" id="btn-save-photo" onclick="saveTripPhoto()">Save</button>
+        </div>
+      </div>
+      <div class="scroll"><div class="form-wrap">
+        <div class="fgrp">
+          <div id="tp-upload-zone" onclick="document.getElementById('tp-photo-input').click()" style="border:2px dashed #DDD0C0;border-radius:14px;padding:24px;text-align:center;cursor:pointer;background:#FEFAF5;">
+            <div id="tp-preview-wrap" style="display:none;margin-bottom:10px;">
+              <img id="tp-preview" style="max-width:100%;max-height:240px;border-radius:10px;object-fit:cover;">
+            </div>
+            <div id="tp-placeholder">
+              <div style="font-size:32px;margin-bottom:6px;">📷</div>
+              <div style="font-size:14px;font-weight:600;color:var(--brown-l);">Tap to choose a photo</div>
+            </div>
+          </div>
+          <input type="file" id="tp-photo-input" accept="image/*" style="display:none;" onchange="handleTripPhotoSelect(event)">
+        </div>
+        <div class="fgrp"><label class="fl">Caption (optional)</label><input class="fi" id="tp-caption" type="text" placeholder="e.g. Sunset at the lake…" maxlength="120"></div>
+        <button class="btn-primary" id="btn-add-photo" onclick="saveTripPhoto()" style="margin-bottom:30px;">+ Add Photo</button>
+      </div></div>
+    </div>
+
+    <!-- ══════ PHOTO VIEWER (lightbox) ══════ -->
+    <div class="screen s-photo-view" id="s-photo-view" style="background:#000;">
+      <div style="position:absolute;top:0;left:0;right:0;z-index:10;display:flex;justify-content:space-between;align-items:center;padding:calc(max(env(safe-area-inset-top,59px),59px) + 10px) 16px 12px;background:linear-gradient(180deg,rgba(0,0,0,0.6),transparent);">
+        <button onclick="navBack()" style="background:rgba(255,255,255,0.15);border:none;border-radius:12px;width:38px;height:38px;display:flex;align-items:center;justify-content:center;font-size:18px;color:#fff;cursor:pointer;">←</button>
+        <button onclick="deleteTripPhoto()" style="background:rgba(255,255,255,0.15);border:none;border-radius:12px;width:38px;height:38px;display:flex;align-items:center;justify-content:center;font-size:16px;color:#fff;cursor:pointer;">🗑️</button>
+      </div>
+      <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;">
+        <img id="pv-img" style="max-width:100%;max-height:100%;object-fit:contain;">
+      </div>
+      <div id="pv-caption" style="position:absolute;bottom:0;left:0;right:0;padding:20px 20px calc(max(env(safe-area-inset-bottom,34px),34px) + 16px);background:linear-gradient(0deg,rgba(0,0,0,0.7),transparent);color:#fff;font-size:14px;font-weight:500;text-align:center;"></div>
     </div>
 
     <!-- PACK LIST -->
@@ -802,6 +874,7 @@ let shQty=1,shCatId=null;
 let prevSc='s-home',detCatId=null;
 let trips=[],activeTripId=null,editingTripId=null;
 let templates=[],templateItemsCache={};
+let tripPhotos=[],viewingTripId=null,selectedTripPhotoFile=null,viewingPhotoId=null;
 
 const SC_SBAR={'s-splash':'on-green','s-home':'on-green','s-stats':'on-green','s-shop':'on-green','s-add':'on-cream','s-add-shop':'on-cream'};
 const SC_NAV={'s-home':'ni-home','s-pack':'ni-pack','s-stats':'ni-stats','s-shop':'ni-shop'};
@@ -822,6 +895,7 @@ function navTo(id){
   document.getElementById(id).classList.add('active');
   document.querySelectorAll('.ni').forEach(b=>b.classList.remove('active'));
   const nb=SC_NAV[id];if(nb)document.getElementById(nb).classList.add('active');
+  if(id!=='s-photo-view')document.getElementById('bnav').classList.remove('hidden');
   if(id==='s-add')resetAdd();
   if(id==='s-add-shop')resetShAdd();
   if(id==='s-stats')renderStats();
@@ -832,6 +906,7 @@ function navTo(id){
   if(id==='s-add-trip')resetTripForm();
   if(id==='s-templates')renderTemplates();
   if(id==='s-ai-suggest')resetAiSuggest();
+  if(id==='s-add-photo')resetAddPhotoForm();
 }
 function navBack(){navTo(prevSc||'s-home');}
 
@@ -1398,6 +1473,7 @@ function renderTrips(){
       <div class="trip-card-name">${esc(t.name)}</div>
       <div class="trip-card-meta">${dateLabel}${t.location?' · '+esc(t.location):''}</div>
       <div class="trip-card-stats">
+        <span class="tcs" onclick="event.stopPropagation();openTripPhotos('${t.id}')" style="text-decoration:underline;cursor:pointer;color:var(--green);">📷 Photos</span>
         <span class="tcs" onclick="event.stopPropagation();editTrip('${t.id}')" style="text-decoration:underline;cursor:pointer;">Edit</span>
         <span class="tcs" onclick="event.stopPropagation();deleteTrip('${t.id}')" style="text-decoration:underline;cursor:pointer;color:var(--red);">Delete</span>
       </div>
@@ -1667,6 +1743,106 @@ async function useTemplate(id){
     toast('✓ Added '+created.length+' items from '+t.name);
     navTo('s-pack');
   }catch(e){toast('Error adding template: '+e.message);}
+}
+
+/* ── TRIP PHOTOS ── */
+async function openTripPhotos(tripId){
+  viewingTripId=tripId||activeTripId;
+  const t=trips.find(x=>x.id===viewingTripId);
+  document.getElementById('tp-trip-name').textContent=t?t.name:'Trip';
+  navTo('s-trip-photos');
+  await loadTripPhotos();
+}
+async function loadTripPhotos(){
+  const grid=document.getElementById('tp-grid');
+  grid.innerHTML='<div class="spinner"></div>';
+  try{
+    tripPhotos=await api('GET',`trip_photos?select=*&trip_id=eq.${viewingTripId}&order=created_at.desc`);
+    renderTripPhotosGrid();
+  }catch(e){toast('Failed to load photos: '+e.message);}
+}
+function renderTripPhotosGrid(){
+  const grid=document.getElementById('tp-grid');
+  if(!tripPhotos.length){
+    grid.innerHTML=`<div class="empty"><div class="empty-em">📷</div><div class="empty-t">No photos yet</div><div class="empty-s">Tap + to add memories from this trip</div></div>`;
+    return;
+  }
+  grid.innerHTML=`<div class="tp-grid">${tripPhotos.map(p=>`
+    <div class="tp-thumb" onclick="viewTripPhoto('${p.id}')">
+      <img src="${p.photo_url}" loading="lazy">
+      ${p.caption?`<div class="tp-thumb-cap">${esc(p.caption)}</div>`:''}
+    </div>
+  `).join('')}</div>`;
+  // update home teaser sub
+  const sub=document.getElementById('h-photos-sub');
+  if(sub && viewingTripId===activeTripId) sub.textContent=tripPhotos.length?`${tripPhotos.length} photo${tripPhotos.length>1?'s':''} saved`:'Capture memories from this trip';
+}
+function resetAddPhotoForm(){
+  selectedTripPhotoFile=null;
+  document.getElementById('tp-photo-input').value='';
+  document.getElementById('tp-caption').value='';
+  document.getElementById('tp-preview-wrap').style.display='none';
+  document.getElementById('tp-placeholder').style.display='block';
+}
+function handleTripPhotoSelect(e){
+  const file=e.target.files[0];
+  if(!file)return;
+  if(file.size > 8*1024*1024){toast('Photo must be under 8MB');return;}
+  selectedTripPhotoFile=file;
+  const reader=new FileReader();
+  reader.onload=function(ev){
+    document.getElementById('tp-preview').src=ev.target.result;
+    document.getElementById('tp-preview-wrap').style.display='block';
+    document.getElementById('tp-placeholder').style.display='none';
+  };
+  reader.readAsDataURL(file);
+}
+async function uploadTripPhoto(file){
+  const ext=file.name.split('.').pop()||'jpg';
+  const fileName=`trip-${Date.now()}-${Math.random().toString(36).slice(2,8)}.${ext}`;
+  const res=await fetch(`${SB}/storage/v1/object/item-photos/${fileName}`,{
+    method:'POST',
+    headers:{'apikey':KEY,'Authorization':'Bearer '+KEY,'Content-Type':file.type},
+    body:file
+  });
+  if(!res.ok)throw new Error('Photo upload failed');
+  return `${SB}/storage/v1/object/public/item-photos/${fileName}`;
+}
+async function saveTripPhoto(){
+  if(!selectedTripPhotoFile){toast('Please choose a photo first');return;}
+  const caption=document.getElementById('tp-caption').value.trim()||null;
+  const btn=document.getElementById('btn-add-photo');btn.disabled=true;
+  try{
+    toast('Uploading photo…');
+    const photo_url=await uploadTripPhoto(selectedTripPhotoFile);
+    const[np]=await api('POST','trip_photos?select=*',{trip_id:viewingTripId,photo_url,caption});
+    tripPhotos.unshift(np);
+    renderTripPhotosGrid();
+    toast('✓ Photo added!');
+    navTo('s-trip-photos');
+  }catch(e){toast('Error: '+e.message);}
+  finally{btn.disabled=false;}
+}
+function viewTripPhoto(id){
+  const p=tripPhotos.find(x=>x.id===id);if(!p)return;
+  viewingPhotoId=id;
+  document.getElementById('pv-img').src=p.photo_url;
+  document.getElementById('pv-caption').textContent=p.caption||'';
+  document.getElementById('bnav').classList.add('hidden');
+  navTo('s-photo-view');
+}
+async function deleteTripPhoto(){
+  if(!viewingPhotoId)return;
+  const idx=tripPhotos.findIndex(x=>x.id===viewingPhotoId);
+  if(idx<0)return;
+  tripPhotos.splice(idx,1);
+  navBack();
+  try{
+    await api('DELETE',`trip_photos?id=eq.${viewingPhotoId}`);
+    renderTripPhotosGrid();
+    toast('Photo deleted');
+  }catch(e){toast('Delete failed: '+e.message);}
+  viewingPhotoId=null;
 }
 
 /* ── SWIPE TO DELETE ── */
