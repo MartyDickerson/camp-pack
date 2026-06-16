@@ -1835,10 +1835,21 @@ async function deleteTripPhoto(){
   if(!viewingPhotoId)return;
   const idx=tripPhotos.findIndex(x=>x.id===viewingPhotoId);
   if(idx<0)return;
+  const photo=tripPhotos[idx];
   tripPhotos.splice(idx,1);
   navBack();
   try{
     await api('DELETE',`trip_photos?id=eq.${viewingPhotoId}`);
+    // also remove the file from storage
+    try{
+      const fileName=photo.photo_url.split('/trip-photos/').pop();
+      if(fileName){
+        await fetch(`${SB}/storage/v1/object/trip-photos/${fileName}`,{
+          method:'DELETE',
+          headers:{'apikey':KEY,'Authorization':'Bearer '+KEY}
+        });
+      }
+    }catch(storageErr){/* non-fatal: db record is already gone */}
     renderTripPhotosGrid();
     toast('Photo deleted');
   }catch(e){toast('Delete failed: '+e.message);}
