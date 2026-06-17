@@ -442,7 +442,6 @@ body.dark .home-hero-wrap .hero-overlay{background:linear-gradient(180deg,rgba(0
 
         <!-- Weather card -->
         <div id="weather-card" style="display:none;padding:0 16px;margin-top:10px;">
-          <div id="wx-label" style="font-size:11px;font-weight:700;color:var(--brown-l);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:6px;padding-left:2px;">Current conditions</div>
           <div style="background:var(--card-bg);border-radius:14px;padding:12px 16px;box-shadow:0 2px 8px rgba(0,0,0,0.06);display:flex;align-items:center;gap:14px;">
             <div id="wx-icon" style="font-size:32px;">🌤️</div>
             <div style="flex:1;">
@@ -1441,8 +1440,6 @@ function renderWeather(data,trip){
     dayIndex=data.daily.time.indexOf(trip.trip_date);
   }
 
-  const labelEl=document.getElementById('wx-label');
-
   if(dayIndex>=0){
     // Show forecast for the actual trip date
     const code=data.daily.weather_code[dayIndex];
@@ -1454,7 +1451,6 @@ function renderWeather(data,trip){
     document.getElementById('wx-desc').textContent=weatherDesc(code);
     document.getElementById('wx-range').textContent=`H: ${hi}° L: ${lo}°`;
     document.getElementById('wx-rain-pct').textContent=rain+'%';
-    if(labelEl)labelEl.textContent='Forecast for '+formatDate(trip.trip_date);
   }else if(data.current){
     // Fall back to current conditions (trip date too far out, today, or past)
     const code=data.current.weather_code;
@@ -1467,10 +1463,6 @@ function renderWeather(data,trip){
       document.getElementById('wx-range').textContent=`H: ${hi}° L: ${lo}°`;
       const rain=data.daily.precipitation_probability_max[0];
       document.getElementById('wx-rain-pct').textContent=rain+'%';
-    }
-    if(labelEl){
-      const farOut = trip && trip.trip_date && daysUntil(trip.trip_date)>15;
-      labelEl.textContent = farOut ? 'Current conditions (forecast unavailable yet)' : 'Current conditions';
     }
   }else{
     card.style.display='none';
