@@ -419,6 +419,10 @@ body.dark .home-hero-wrap .hero-overlay{background:linear-gradient(180deg,rgba(0
             </div>
           </div>
           <div class="hero-sub" style="font-size:13px;color:rgba(255,255,255,0.7);margin-top:6px;font-weight:500;">Never forget your essentials again</div>
+          <div id="hero-quote-card" style="margin-top:14px;display:flex;align-items:flex-start;gap:8px;background:rgba(255,255,255,0.1);border-radius:12px;padding:10px 12px;backdrop-filter:blur(4px);">
+            <span style="font-size:13px;color:rgba(255,255,255,0.45);line-height:1;margin-top:1px;">❝</span>
+            <div id="hero-quote-text" style="font-size:12px;color:rgba(255,255,255,0.85);font-style:italic;line-height:1.4;">Almost any path through the woods leads to wonder.</div>
+          </div>
         </div>
       </div>
       <!-- Sliding white body -->
@@ -1967,6 +1971,35 @@ function initTheme(){
   applyTheme(saved === 'dark' ? 'dark' : 'light');
 }
 initTheme();
+
+/* ── QUOTE OF THE DAY ── */
+const CAMP_QUOTES=[
+  "Almost any path through the woods leads to wonder.",
+  "The best campfires are the ones that make you forget your phone exists.",
+  "Pack light, breathe deep, and let the trail decide the pace.",
+  "There's a kind of quiet in the woods that cities forgot existed.",
+  "Every sunset over a campsite feels like it was made just for you.",
+  "The smell of pine and woodsmoke is the closest thing to a reset button.",
+  "Good company and a warm fire can make any forecast feel fine.",
+  "Sleeping under stars has a way of making your problems feel smaller.",
+  "The best stories always start with 'so we were out camping when…'.",
+  "A tent is just a small reminder that you don't need much to feel at home.",
+  "Mornings taste better with a camp stove and a view.",
+  "The trail doesn't care about your to-do list, and that's the whole point.",
+  "Wild places have a way of making time feel optional.",
+  "Nothing teaches patience quite like waiting on a campfire to catch.",
+  "The lake is always calmer than the week you just had."
+];
+function renderQuoteOfDay(){
+  const el=document.getElementById('hero-quote-text');
+  if(!el)return;
+  const dayKey=new Date().toISOString().slice(0,10);
+  let hash=0;
+  for(let i=0;i<dayKey.length;i++){hash=(hash*31+dayKey.charCodeAt(i))>>>0;}
+  const idx=hash%CAMP_QUOTES.length;
+  el.textContent=CAMP_QUOTES[idx];
+}
+renderQuoteOfDay();
 
 function updateGreeting(){
   const h = new Date().getHours();
