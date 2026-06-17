@@ -227,7 +227,8 @@ body.dark .home-hero-wrap .hero-overlay{background:linear-gradient(180deg,rgba(0
 /* trip photo grid */
 .tp-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
 .tp-thumb{position:relative;border-radius:12px;overflow:hidden;aspect-ratio:1;cursor:pointer;background:#EEE;}
-.tp-thumb img{width:100%;height:100%;object-fit:cover;display:block;}
+.tp-thumb img,.tp-thumb video{width:100%;height:100%;object-fit:cover;display:block;}
+.tp-play-badge{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:30px;height:30px;background:rgba(0,0,0,0.5);border-radius:50%;color:#fff;font-size:11px;display:flex;align-items:center;justify-content:center;}
 .tp-thumb-cap{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(0deg,rgba(0,0,0,0.65),transparent);padding:6px 6px 4px;font-size:9px;color:#fff;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .cat-bubble{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;}
 .cb-icon-wrap{width:64px;height:64px;border-radius:22px;background:var(--card-bg);display:flex;align-items:center;justify-content:center;font-size:28px;box-shadow:var(--cs);transition:transform 0.15s;position:relative;}
@@ -596,7 +597,7 @@ body.dark .home-hero-wrap .hero-overlay{background:linear-gradient(180deg,rgba(0
       <div class="screen-hdr-white">
         <div style="display:flex;align-items:center;justify-content:space-between;">
           <button style="font-size:14px;color:var(--brown-xl);background:none;border:none;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-weight:600;" onclick="navBack()">Cancel</button>
-          <div style="font-size:18px;font-weight:800;color:var(--brown);">Add Photo</div>
+          <div style="font-size:18px;font-weight:800;color:var(--brown);">Add Photo or Video</div>
           <button style="font-size:14px;color:var(--amber-l);background:none;border:none;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;" id="btn-save-photo" onclick="saveTripPhoto()">Save</button>
         </div>
       </div>
@@ -604,20 +605,21 @@ body.dark .home-hero-wrap .hero-overlay{background:linear-gradient(180deg,rgba(0
         <div class="fgrp">
           <div id="tp-upload-zone" onclick="document.getElementById('tp-photo-input').click()" style="border:2px dashed #DDD0C0;border-radius:14px;padding:24px;text-align:center;cursor:pointer;background:#FEFAF5;">
             <div id="tp-preview-wrap" style="display:none;margin-bottom:10px;">
-              <img id="tp-preview" style="max-width:100%;max-height:240px;border-radius:10px;object-fit:cover;">
+              <img id="tp-preview" style="max-width:100%;max-height:240px;border-radius:10px;object-fit:cover;display:none;">
+              <video id="tp-preview-video" style="max-width:100%;max-height:240px;border-radius:10px;display:none;" controls muted></video>
             </div>
             <div id="tp-placeholder">
               <div style="font-size:32px;margin-bottom:6px;">📷</div>
-              <div style="font-size:14px;font-weight:600;color:var(--brown-l);">Tap to choose a photo</div>
+              <div style="font-size:14px;font-weight:600;color:var(--brown-l);">Tap to choose a photo or video</div>
             </div>
           </div>
-          <input type="file" id="tp-photo-input" accept="image/*" style="display:none;" onchange="handleTripPhotoSelect(event)">
+          <input type="file" id="tp-photo-input" accept="image/*,video/*" style="display:none;" onchange="handleTripPhotoSelect(event)">
         </div>
         <div class="fgrp"><label class="fl">Trip</label>
           <select class="fi" id="tp-trip-select" onchange="onTripPhotoTripChange()" style="appearance:none;-webkit-appearance:none;background-image:url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23A08868%22%20stroke-width%3D%222%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E');background-repeat:no-repeat;background-position:right 14px center;background-size:16px;"></select>
         </div>
         <div class="fgrp"><label class="fl">Caption (optional)</label><input class="fi" id="tp-caption" type="text" placeholder="e.g. Sunset at the lake…" maxlength="120"></div>
-        <button class="btn-primary" id="btn-add-photo" onclick="saveTripPhoto()" style="margin-bottom:30px;">+ Add Photo</button>
+        <button class="btn-primary" id="btn-add-photo" onclick="saveTripPhoto()" style="margin-bottom:30px;">+ Add to Gallery</button>
       </div></div>
     </div>
 
@@ -630,7 +632,8 @@ body.dark .home-hero-wrap .hero-overlay{background:linear-gradient(180deg,rgba(0
         </button>
       </div>
       <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;">
-        <img id="pv-img" style="max-width:100%;max-height:100%;object-fit:contain;">
+        <img id="pv-img" style="max-width:100%;max-height:100%;object-fit:contain;display:none;">
+        <video id="pv-video" style="max-width:100%;max-height:100%;object-fit:contain;display:none;" controls playsinline></video>
       </div>
       <div id="pv-caption" style="position:absolute;bottom:0;left:0;right:0;padding:20px 20px calc(max(env(safe-area-inset-bottom,34px),34px) + 16px);background:linear-gradient(0deg,rgba(0,0,0,0.7),transparent);color:#fff;font-size:14px;font-weight:500;text-align:center;"></div>
     </div>
@@ -898,7 +901,7 @@ let shQty=1,shCatId=null;
 let prevSc='s-home',detCatId=null;
 let trips=[],activeTripId=null,editingTripId=null;
 let templates=[],templateItemsCache={};
-let tripPhotos=[],viewingTripId=null,selectedTripPhotoFile=null,viewingPhotoId=null;
+let tripPhotos=[],viewingTripId=null,selectedTripPhotoFile=null,selectedTripPhotoType='photo',viewingPhotoId=null;
 
 const SC_SBAR={'s-splash':'on-green','s-home':'on-green','s-stats':'on-green','s-shop':'on-green','s-add':'on-cream','s-add-shop':'on-cream'};
 const SC_NAV={'s-home':'ni-home','s-pack':'ni-pack','s-stats':'ni-stats','s-shop':'ni-shop'};
@@ -913,6 +916,10 @@ function navTo(id){
   const cur=document.querySelector('.screen.active');
   if(cur&&cur.id===id)return;
   prevSc=cur?cur.id:'s-home';
+  if(cur&&cur.id==='s-photo-view'){
+    const vidEl=document.getElementById('pv-video');
+    if(vidEl){vidEl.pause();}
+  }
   const sb=document.getElementById('sbar');
   sb.className='sbar '+(SC_SBAR[id]||'on-cream');
   if(cur){cur.classList.remove('active');cur.classList.add('prev');setTimeout(()=>cur.classList.remove('prev'),350);}
@@ -1786,20 +1793,25 @@ function renderTripPhotosGrid(){
   }
   grid.innerHTML=`<div class="tp-grid">${tripPhotos.map(p=>`
     <div class="tp-thumb" onclick="viewTripPhoto('${p.id}')">
-      <img src="${p.photo_url}" loading="lazy">
+      ${p.media_type==='video'?`<video src="${p.photo_url}" muted></video><div class="tp-play-badge">▶</div>`:`<img src="${p.photo_url}" loading="lazy">`}
       ${p.caption?`<div class="tp-thumb-cap">${esc(p.caption)}</div>`:''}
     </div>
   `).join('')}</div>`;
   // update home teaser sub
   const sub=document.getElementById('h-photos-sub');
-  if(sub && viewingTripId===activeTripId) sub.textContent=tripPhotos.length?`${tripPhotos.length} photo${tripPhotos.length>1?'s':''} saved`:'Capture memories from this trip';
+  if(sub && viewingTripId===activeTripId) sub.textContent=tripPhotos.length?`${tripPhotos.length} memor${tripPhotos.length>1?'ies':'y'} saved`:'Capture memories from this trip';
 }
 function resetAddPhotoForm(){
   selectedTripPhotoFile=null;
+  selectedTripPhotoType='photo';
   document.getElementById('tp-photo-input').value='';
   document.getElementById('tp-caption').value='';
   document.getElementById('tp-preview-wrap').style.display='none';
   document.getElementById('tp-placeholder').style.display='block';
+  const imgEl=document.getElementById('tp-preview');
+  const vidEl=document.getElementById('tp-preview-video');
+  imgEl.style.display='none';imgEl.removeAttribute('src');
+  vidEl.style.display='none';vidEl.removeAttribute('src');
   const sel=document.getElementById('tp-trip-select');
   const targetTripId=viewingTripId||activeTripId;
   sel.innerHTML=trips.map(t=>`<option value="${t.id}" ${t.id===targetTripId?'selected':''}>${esc(t.name)}${t.id===activeTripId?' (Active)':''}</option>`).join('');
@@ -1810,46 +1822,59 @@ function onTripPhotoTripChange(){
 function handleTripPhotoSelect(e){
   const file=e.target.files[0];
   if(!file)return;
-  if(file.size > 8*1024*1024){toast('Photo must be under 8MB');return;}
+  const isVideo=file.type.startsWith('video/');
+  const maxSize=isVideo?50*1024*1024:8*1024*1024;
+  if(file.size > maxSize){toast(isVideo?'Video must be under 50MB':'Photo must be under 8MB');return;}
   selectedTripPhotoFile=file;
-  const reader=new FileReader();
-  reader.onload=function(ev){
-    document.getElementById('tp-preview').src=ev.target.result;
-    document.getElementById('tp-preview-wrap').style.display='block';
-    document.getElementById('tp-placeholder').style.display='none';
-  };
-  reader.readAsDataURL(file);
+  selectedTripPhotoType=isVideo?'video':'photo';
+  const imgEl=document.getElementById('tp-preview');
+  const vidEl=document.getElementById('tp-preview-video');
+  const url=URL.createObjectURL(file);
+  if(isVideo){
+    vidEl.src=url;
+    vidEl.style.display='block';
+    imgEl.style.display='none';
+    imgEl.removeAttribute('src');
+  }else{
+    imgEl.src=url;
+    imgEl.style.display='block';
+    vidEl.style.display='none';
+    vidEl.removeAttribute('src');
+  }
+  document.getElementById('tp-preview-wrap').style.display='block';
+  document.getElementById('tp-placeholder').style.display='none';
 }
 async function uploadTripPhoto(file){
-  const ext=file.name.split('.').pop()||'jpg';
+  const ext=file.name.split('.').pop()||(file.type.startsWith('video/')?'mp4':'jpg');
   const fileName=`trip-${Date.now()}-${Math.random().toString(36).slice(2,8)}.${ext}`;
   const res=await fetch(`${SB}/storage/v1/object/trip-photos/${fileName}`,{
     method:'POST',
     headers:{'apikey':KEY,'Authorization':'Bearer '+KEY,'Content-Type':file.type},
     body:file
   });
-  if(!res.ok)throw new Error('Photo upload failed');
+  if(!res.ok)throw new Error('Upload failed');
   return `${SB}/storage/v1/object/public/trip-photos/${fileName}`;
 }
 async function saveTripPhoto(){
-  if(!selectedTripPhotoFile){toast('Please choose a photo first');return;}
+  if(!selectedTripPhotoFile){toast('Please choose a photo or video first');return;}
   const targetTripId=document.getElementById('tp-trip-select').value;
   const caption=document.getElementById('tp-caption').value.trim()||null;
+  const mediaType=selectedTripPhotoType;
   const btn=document.getElementById('btn-add-photo');btn.disabled=true;
   try{
-    toast('Uploading photo…');
+    toast(mediaType==='video'?'Uploading video…':'Uploading photo…');
     const photo_url=await uploadTripPhoto(selectedTripPhotoFile);
-    const[np]=await api('POST','trip_photos?select=*',{trip_id:targetTripId,photo_url,caption});
+    const[np]=await api('POST','trip_photos?select=*',{trip_id:targetTripId,photo_url,caption,media_type:mediaType});
     // only reflect in current grid if it belongs to the trip currently being viewed
     if(targetTripId===viewingTripId){
       tripPhotos.unshift(np);
       renderTripPhotosGrid();
     }
     const t=trips.find(x=>x.id===targetTripId);
-    toast('✓ Photo added to '+(t?t.name:'trip')+'!');
+    toast('✓ Added to '+(t?t.name:'trip')+'!');
     navTo('s-trip-photos');
     if(targetTripId!==viewingTripId){
-      // switch the gallery view to the trip the photo was actually saved to
+      // switch the gallery view to the trip the media was actually saved to
       viewingTripId=targetTripId;
       document.getElementById('tp-trip-name').textContent=t?t.name:'Trip';
       await loadTripPhotos();
@@ -1860,7 +1885,20 @@ async function saveTripPhoto(){
 function viewTripPhoto(id){
   const p=tripPhotos.find(x=>x.id===id);if(!p)return;
   viewingPhotoId=id;
-  document.getElementById('pv-img').src=p.photo_url;
+  const imgEl=document.getElementById('pv-img');
+  const vidEl=document.getElementById('pv-video');
+  if(p.media_type==='video'){
+    vidEl.src=p.photo_url;
+    vidEl.style.display='block';
+    imgEl.style.display='none';
+    imgEl.removeAttribute('src');
+  }else{
+    imgEl.src=p.photo_url;
+    imgEl.style.display='block';
+    vidEl.style.display='none';
+    vidEl.pause();
+    vidEl.removeAttribute('src');
+  }
   document.getElementById('pv-caption').textContent=p.caption||'';
   document.getElementById('bnav').classList.add('hidden');
   navTo('s-photo-view');
