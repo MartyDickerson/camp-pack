@@ -1104,7 +1104,7 @@ function renderHome(){
   syncStats();
   renderTripBanner();
   const el=document.getElementById('home-cats');
-  el.innerHTML=cats.slice(0,4).map(c=>{
+  el.innerHTML=cats.slice(0,5).map(c=>{
     const ci=items.filter(x=>x.category_id===c.id);
     return`<div class="cat-bubble" onclick="openDet('${c.id}')">
       <div class="cb-icon-wrap">${c.icon||'📦'}${ci.length?`<span class="cb-badge">${ci.length}</span>`:''}
