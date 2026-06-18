@@ -994,7 +994,7 @@ async function api(m,p,b){
 let cats=[],items=[],shopItems=[],pFilter='all',shFilter='all';
 let addQty=1,addCatId=null,addEss=false;
 let shQty=1,shCatId=null;
-let prevSc='s-home',detCatId=null;
+let navHistory=['s-home'],detCatId=null;
 let trips=[],activeTripId=null,editingTripId=null;
 let templates=[],templateItemsCache={};
 let tripPhotos=[],viewingTripId=null,selectedTripPhotoFile=null,selectedTripPhotoType='photo',viewingPhotoId=null;
@@ -1008,10 +1008,18 @@ function onFab(){
   else navTo('s-add');
 }
 
-function navTo(id){
+function navTo(id,isBack){
   const cur=document.querySelector('.screen.active');
   if(cur&&cur.id===id)return;
-  prevSc=cur?cur.id:'s-home';
+  if(cur && cur.id!=='s-splash'){
+    if(isBack){
+      // going back: drop the current screen off the top of the stack
+      if(navHistory[navHistory.length-1]===cur.id)navHistory.pop();
+    }else{
+      // going forward: remember where we came from
+      navHistory.push(cur.id);
+    }
+  }
   if(cur&&cur.id==='s-photo-view'){
     const vidEl=document.getElementById('pv-video');
     if(vidEl){vidEl.pause();}
@@ -1037,7 +1045,10 @@ function navTo(id){
   if(id==='s-history')renderHistory();
   if(id==='s-achievements')renderAchievements();
 }
-function navBack(){navTo(prevSc||'s-home');}
+function navBack(){
+  const target=navHistory.length?navHistory[navHistory.length-1]:'s-home';
+  navTo(target,true);
+}
 
 async function boot(){
   try{
@@ -1386,7 +1397,6 @@ function renderStats(){
 
 /* ── CAT DETAIL ── */
 function openDet(id){
-  prevSc=document.querySelector('.screen.active')?.id||'s-home';
   detCatId=id;
   const c=cats.find(x=>x.id===id);if(!c)return;
   document.getElementById('det-ic').textContent=c.icon||'📦';
@@ -1395,10 +1405,7 @@ function openDet(id){
   document.getElementById('det-st').textContent=`${ci.length} items · ${ci.filter(x=>x.packed).length} packed`;
   renderDetList();
   renderCatNote();
-  const sb=document.getElementById('sbar');sb.className='sbar on-cream';
-  document.querySelector('.screen.active').classList.remove('active');
-  document.getElementById('s-det').classList.add('active');
-  document.querySelectorAll('.ni').forEach(b=>b.classList.remove('active'));
+  navTo('s-det');
 }
 function renderCatNote(){
   const c=cats.find(x=>x.id===detCatId);if(!c)return;
@@ -1802,7 +1809,6 @@ function resetTripForm(){
 function editTrip(id){
   const t=trips.find(x=>x.id===id);if(!t)return;
   editingTripId=id;
-  prevSc='s-trips';
   document.getElementById('add-trip-title').textContent='Edit Trip';
   document.getElementById('trip-name').value=t.name||'';
   document.getElementById('trip-date').value=t.trip_date||'';
