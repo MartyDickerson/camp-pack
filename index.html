@@ -174,8 +174,11 @@ body.dark .home-hero-wrap .hero-overlay{background:linear-gradient(180deg,rgba(0
 .ss-l{font-size:10px;font-weight:600;color:var(--brown-xl);text-transform:uppercase;letter-spacing:0.4px;margin-top:2px;}
 .prog{height:5px;background:#F0E8DC;border-radius:3px;overflow:hidden;margin:10px 16px 0;}
 .prog-bar{height:100%;background:linear-gradient(90deg,#E07820,#F09030);border-radius:3px;transition:width 0.5s cubic-bezier(.4,0,.2,1);}
-.cat-bubbles{display:flex;gap:16px;overflow-x:auto;padding:6px 20px 4px 16px;-ms-overflow-style:none;scrollbar-width:none;}
+.cat-bubbles{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;padding:6px 16px 4px;}
 .cat-bubbles::-webkit-scrollbar{display:none;}
+.cat-bubble{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;}
+.cb-icon-wrap{width:100%;aspect-ratio:1;max-width:58px;border-radius:16px;background:var(--card-bg);display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:var(--cs);transition:transform 0.15s;position:relative;}
+.cb-name{font-size:9.5px;font-weight:600;color:var(--brown-l);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;max-width:58px;}
 
 /* trip banner */
 .trip-banner{
@@ -258,11 +261,8 @@ body.dark .home-hero-wrap .hero-overlay{background:linear-gradient(180deg,rgba(0
 .tp-thumb img,.tp-thumb video{width:100%;height:100%;object-fit:cover;display:block;}
 .tp-play-badge{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:30px;height:30px;background:rgba(0,0,0,0.5);border-radius:50%;color:#fff;font-size:11px;display:flex;align-items:center;justify-content:center;}
 .tp-thumb-cap{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(0deg,rgba(0,0,0,0.65),transparent);padding:6px 6px 4px;font-size:9px;color:#fff;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.cat-bubble{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;}
-.cb-icon-wrap{width:64px;height:64px;border-radius:22px;background:var(--card-bg);display:flex;align-items:center;justify-content:center;font-size:28px;box-shadow:var(--cs);transition:transform 0.15s;position:relative;}
 .cb-icon-wrap:active{transform:scale(0.94);}
 .cb-badge{position:absolute;top:-4px;right:-4px;min-width:20px;height:20px;padding:0 4px;background:#E07820;border-radius:10px;font-size:10px;font-weight:700;color:#fff;display:flex;align-items:center;justify-content:center;border:2px solid var(--peach);box-sizing:border-box;}
-.cb-name{font-size:11px;font-weight:600;color:var(--brown-l);text-align:center;line-height:1.2;}
 .ri-card{display:flex;align-items:center;gap:12px;background:var(--card-bg);border-radius:var(--r16);padding:13px 16px;margin-bottom:8px;box-shadow:0 2px 8px rgba(61,43,26,0.06);cursor:pointer;transition:transform 0.12s;}
 .ri-card:active{transform:scale(0.99);}
 .ri-chk{width:24px;height:24px;border-radius:8px;border:2px solid #E8D5C0;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all 0.15s;font-size:13px;font-weight:700;}
