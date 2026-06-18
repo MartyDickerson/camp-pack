@@ -215,6 +215,12 @@ body.dark .home-hero-wrap .hero-overlay{background:linear-gradient(180deg,rgba(0
   background:var(--amber);padding:3px 9px;border-radius:10px;
 }
 .trip-card-stats{display:flex;gap:14px;margin-top:10px;}
+.trip-budget-row{margin-top:10px;padding-top:10px;border-top:1px solid var(--hairline);}
+.trip-budget-bar-wrap{height:6px;background:var(--peach-d);border-radius:4px;overflow:hidden;margin:8px 0 6px;}
+.trip-budget-bar{height:100%;border-radius:4px;background:#E07820;transition:width 0.4s;}
+.trip-budget-bar.over{background:#C0392B;}
+.trip-budget-nums{display:flex;justify-content:space-between;font-size:11px;color:var(--brown-xl);}
+.trip-budget-nums b{color:var(--brown);font-weight:700;}
 .tcs{font-size:11px;font-weight:600;color:var(--brown-l);}
 .tcs strong{color:var(--brown);}
 
@@ -1694,20 +1700,60 @@ function formatDate(dateStr){
 function renderTrips(){
   const el=document.getElementById('trips-list');
   el.innerHTML=trips.map(t=>{
-    const tItems=items.filter(()=>t.id===activeTripId); // only counts loaded items for active trip
     const isActive=t.id===activeTripId;
     const dateLabel=t.trip_date?formatDate(t.trip_date):'No date set';
-    return`<div class="trip-card ${isActive?'active':''}" onclick="switchTrip('${t.id}')">
+    const hasBudget=t.budget&&t.budget>0;
+    return`<div class="trip-card ${isActive?'active':''}" id="tc-${t.id}" onclick="switchTrip('${t.id}')">
       ${isActive?'<span class="trip-card-badge">ACTIVE</span>':''}
       <div class="trip-card-name">${esc(t.name)}</div>
       <div class="trip-card-meta">${dateLabel}${t.location?' · '+esc(t.location):''}</div>
       <div class="trip-card-stats">
         <span class="tcs" onclick="event.stopPropagation();openTripPhotos('${t.id}')" style="text-decoration:underline;cursor:pointer;color:var(--green);display:inline-flex;align-items:center;gap:3px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg> Photos</span>
+        <span class="tcs" onclick="event.stopPropagation();toggleTripBudget('${t.id}',${t.budget||0})" style="text-decoration:underline;cursor:pointer;color:var(--green);">💰 Budget</span>
         <span class="tcs" onclick="event.stopPropagation();editTrip('${t.id}')" style="text-decoration:underline;cursor:pointer;">Edit</span>
         <span class="tcs" onclick="event.stopPropagation();deleteTrip('${t.id}')" style="text-decoration:underline;cursor:pointer;color:var(--red);">Delete</span>
       </div>
+      <div class="trip-budget-row" id="tb-${t.id}" style="display:none;">
+        <div id="tb-inner-${t.id}" style="font-size:12px;color:var(--brown-xl);">Loading…</div>
+      </div>
     </div>`;
   }).join('');
+}
+async function toggleTripBudget(tripId,budget){
+  const row=document.getElementById('tb-'+tripId);
+  const inner=document.getElementById('tb-inner-'+tripId);
+  if(!row)return;
+  if(row.style.display!=='none'){row.style.display='none';return;}
+  row.style.display='block';
+  inner.textContent='Loading…';
+  try{
+    const shopItems=await api('GET',`shopping_list?trip_id=eq.${tripId}&select=price,quantity,bought,name`);
+    const spent=shopItems.filter(i=>i.bought&&i.price).reduce((s,i)=>s+(parseFloat(i.price)*i.quantity),0);
+    const total=shopItems.filter(i=>i.price).reduce((s,i)=>s+(parseFloat(i.price)*i.quantity),0);
+    const boughtCount=shopItems.filter(i=>i.bought).length;
+    if(!budget&&!shopItems.length){
+      inner.innerHTML=`<div style="color:var(--brown-xl);font-size:12px;">No budget set and no shopping items yet.<br><span style="text-decoration:underline;cursor:pointer;color:var(--green);" onclick="event.stopPropagation();editTrip('${tripId}')">Tap Edit to set a budget</span></div>`;
+      return;
+    }
+    const pct=budget?Math.min(Math.round(spent/budget*100),100):0;
+    const over=budget&&spent>budget;
+    const remaining=budget?(budget-spent):null;
+    inner.innerHTML=`
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+        <span style="font-size:12px;font-weight:700;color:var(--brown);">Trip Budget</span>
+        ${budget?`<span style="font-size:12px;font-weight:800;color:${over?'#C0392B':'#E07820'};">$${spent.toFixed(2)} / $${parseFloat(budget).toFixed(2)}</span>`:`<span style="font-size:11px;color:var(--brown-xl);">No budget set</span>`}
+      </div>
+      ${budget?`
+      <div class="trip-budget-bar-wrap"><div class="trip-budget-bar${over?' over':''}" style="width:${pct}%;"></div></div>
+      <div class="trip-budget-nums">
+        <span>Spent: <b>$${spent.toFixed(2)}</b></span>
+        <span>${over?`<b style="color:#C0392B;">Over by $${(spent-budget).toFixed(2)}</b>`:`Remaining: <b>$${remaining.toFixed(2)}</b>`}</span>
+      </div>`:''}
+      ${shopItems.length?`<div style="margin-top:8px;font-size:11px;color:var(--brown-xl);">${boughtCount} of ${shopItems.length} shopping items bought · Total list value $${total.toFixed(2)}</div>`:'<div style="margin-top:6px;font-size:11px;color:var(--brown-xl);">No shopping items yet</div>'}
+    `;
+  }catch(e){
+    inner.textContent='Could not load budget data.';
+  }
 }
 /* ── ACHIEVEMENTS ── */
 const ACHIEVEMENTS=[
