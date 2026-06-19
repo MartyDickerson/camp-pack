@@ -1113,9 +1113,7 @@ async function boot(){
     renderHome();
     renderPack();
     checkAchievements();
-    // Backfill campground photos for any trips that have coordinates but no photo yet
-    trips.filter(t=>t.latitude&&t.longitude&&!t.campground_photo)
-      .forEach(t=>fetchCampgroundPhoto(t.latitude,t.longitude,t.id));
+
   }catch(e){toast('Failed to load: '+e.message);}
 }
 
@@ -1573,18 +1571,6 @@ function renderTripBanner(){
   document.getElementById('tb-name').textContent=t.name;
   const dateEl=document.getElementById('tb-date');
   const countEl=document.getElementById('tb-countdown');
-  const banner=document.getElementById('trip-banner');
-  // Apply campground photo as banner background if available
-  if(t.campground_photo&&banner){
-    banner.style.backgroundImage=`url(${t.campground_photo})`;
-    banner.style.backgroundSize='cover';
-    banner.style.backgroundPosition='center';
-    // Darken overlay so text stays readable
-    banner.style.boxShadow='inset 0 0 0 1000px rgba(30,15,70,0.65), 0 6px 20px rgba(61,42,122,0.25)';
-  }else if(banner){
-    banner.style.backgroundImage='';
-    banner.style.boxShadow='0 6px 20px rgba(61,42,122,0.25)';
-  }
   if(t.trip_date){
     const days=daysUntil(t.trip_date);
     dateEl.textContent=formatDate(t.trip_date)+(t.location?' · '+t.location:'');
@@ -1721,12 +1707,7 @@ function renderTrips(){
     const dateLabel=t.trip_date?formatDate(t.trip_date):'No date set';
     const hasBudget=t.budget&&t.budget>0;
     return`<div class="trip-card ${isActive?'active':''}" id="tc-${t.id}" onclick="switchTrip('${t.id}')">
-      ${t.campground_photo?`<div style="margin:-16px -18px 14px;height:120px;border-radius:14px 14px 0 0;overflow:hidden;position:relative;">
-        <img src="${t.campground_photo}" style="width:100%;height:100%;object-fit:cover;display:block;" loading="lazy" onerror="this.parentElement.style.display='none'">
-        <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0.15) 0%,rgba(0,0,0,0.4) 100%);"></div>
-        ${isActive?'<span class="trip-card-badge" style="top:10px;right:10px;">ACTIVE</span>':''}
-      </div>`:`${isActive?'<span class="trip-card-badge">ACTIVE</span>':''}`}
-      ${!t.campground_photo&&isActive?'':''}
+      ${isActive?'<span class="trip-card-badge">ACTIVE</span>':''}
       <div class="trip-card-name">${esc(t.name)}</div>
       <div class="trip-card-meta">${dateLabel}${t.location?' · '+esc(t.location):''}</div>
       <div class="trip-card-stats">
@@ -1959,13 +1940,10 @@ async function saveTrip(){
       const idx=trips.findIndex(t=>t.id===editingTripId);
       if(idx>=0)trips[idx]=ut;
       toast('Trip updated!');
-      // Re-fetch campground photo if coordinates changed
-      if(latitude&&longitude)fetchCampgroundPhoto(latitude,longitude,editingTripId);
     }else{
       const[nt]=await api('POST','trips?select=*',{name,trip_date,location,latitude,longitude,budget,is_active:false});
       trips.push(nt);
       toast('Trip created!');
-      if(latitude&&longitude)fetchCampgroundPhoto(latitude,longitude,nt.id);
     }
     renderTrips();
     navTo('s-trips');
@@ -1973,84 +1951,6 @@ async function saveTrip(){
   }catch(e){toast('Error: '+e.message);}
   finally{btn.disabled=false;}
 }
-
-/* ── CAMPGROUND PHOTO AUTO-FETCH (iNaturalist) ── */
-async function fetchCampgroundPhoto(lat,lng,tripId){
-  try{
-    // iNaturalist geosearch — research-grade observations with photos near the campground
-    // We request multiple pages and filter for landscape-friendly categories
-    // Prefer plants/landscapes over animals for visual appeal
-    const inatUrl=`https://api.inaturalist.org/v1/observations?`+
-      `lat=${lat}&lng=${lng}&radius=5&`+
-      `photos=true&quality_grade=research&`+
-      `order_by=votes&order=desc&`+
-      `per_page=20&page=1&`+
-      `photo_license=cc-by,cc-by-sa,cc-by-nd,cc0&`+
-      `iconic_taxa=Plantae,Fungi`;
-    const res=await fetch(inatUrl);
-    if(!res.ok)throw new Error('iNaturalist request failed');
-    const data=await res.json();
-    const obs=data.results||[];
-
-    // Find an observation with a usable landscape photo
-    // Prefer photos with medium/large size and good aspect ratio
-    let photoUrl=null;
-    for(const ob of obs){
-      if(!ob.photos||!ob.photos.length)continue;
-      const photo=ob.photos[0];
-      // iNaturalist photo URLs use size suffixes: square, thumb, small, medium, large, original
-      const url=(photo.url||'').replace('square','large');
-      if(url&&url.startsWith('http')){
-        photoUrl=url;
-        break;
-      }
-    }
-
-    // If plants didn't yield results, try a broader search (any taxon)
-    if(!photoUrl){
-      const broadUrl=`https://api.inaturalist.org/v1/observations?`+
-        `lat=${lat}&lng=${lng}&radius=10&`+
-        `photos=true&quality_grade=research&`+
-        `order_by=votes&order=desc&`+
-        `per_page=10&page=1&`+
-        `photo_license=cc-by,cc-by-sa,cc-by-nd,cc0`;
-      const broadRes=await fetch(broadUrl);
-      if(broadRes.ok){
-        const broadData=await broadRes.json();
-        const broadObs=broadData.results||[];
-        for(const ob of broadObs){
-          if(!ob.photos||!ob.photos.length)continue;
-          const photo=ob.photos[0];
-          const url=(photo.url||'').replace('square','large');
-          if(url&&url.startsWith('http')){photoUrl=url;break;}
-        }
-      }
-    }
-
-    // Final fallback: OpenStreetMap static map of the area
-    if(!photoUrl){
-      photoUrl=`https://staticmap.openstreetmap.de/staticmap.php?center=${lat},${lng}&zoom=14&size=800x400&maptype=mapnik`;
-    }
-
-    await saveCampgroundPhoto(tripId,photoUrl);
-  }catch(e){
-    console.warn('Campground photo fetch failed:',e);
-    // Store a map tile as last resort so we always have something
-    try{
-      const fallback=`https://staticmap.openstreetmap.de/staticmap.php?center=${lat},${lng}&zoom=14&size=800x400&maptype=mapnik`;
-      await saveCampgroundPhoto(tripId,fallback);
-    }catch(e2){}
-  }
-}
-
-async function saveCampgroundPhoto(tripId,photoUrl){
-  try{
-    await api('PATCH',`trips?id=eq.${tripId}`,{campground_photo:photoUrl});
-    const t=trips.find(x=>x.id===tripId);
-    if(t){t.campground_photo=photoUrl;renderTrips();}
-  }catch(e){console.warn('Could not save campground photo:',e);}
-}
-
 
 /* ── AI-STYLE SUGGESTIONS (curated rule-based, no external API needed) ── */
 const AI_SUGGESTIONS={
