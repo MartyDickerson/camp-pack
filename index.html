@@ -8,6 +8,8 @@
 <meta name="theme-color" content="#0B2518">
 <title>Camp Pack</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 html,body{height:100%;height:100dvh;background:#0A0818;font-family:'Plus Jakarta Sans',sans-serif;overflow:hidden;position:fixed;width:100%;top:0;left:0;}
@@ -216,6 +218,9 @@ body.dark .home-hero-wrap .hero-overlay{background:linear-gradient(180deg,rgba(0
 }
 .trip-card-stats{display:flex;gap:14px;margin-top:10px;}
 .trip-budget-row{margin-top:10px;padding-top:10px;border-top:1px solid var(--hairline);}
+.leaflet-container{font-family:'Plus Jakarta Sans',sans-serif;border-radius:12px;}
+.leaflet-control-zoom{border:none!important;box-shadow:0 2px 8px rgba(0,0,0,0.2)!important;}
+.leaflet-control-zoom a{border-radius:8px!important;}
 .trip-budget-bar-wrap{height:6px;background:var(--peach-d);border-radius:4px;overflow:hidden;margin:8px 0 6px;}
 .trip-budget-bar{height:100%;border-radius:4px;background:#E07820;transition:width 0.4s;}
 .trip-budget-bar.over{background:#C0392B;}
@@ -1713,15 +1718,54 @@ function renderTrips(){
       <div class="trip-card-stats">
         <span class="tcs" onclick="event.stopPropagation();openTripPhotos('${t.id}')" style="text-decoration:none;cursor:pointer;display:inline-flex;align-items:center;gap:3px;color:#fff;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg> Photos</span>
         <span class="tcs" onclick="event.stopPropagation();toggleTripBudget('${t.id}',${t.budget||0})" style="text-decoration:none;cursor:pointer;color:#fff;">💰 Budget</span>
+        ${t.latitude&&t.longitude?`<span class="tcs" onclick="event.stopPropagation();toggleTripMap('${t.id}',${t.latitude},${t.longitude})" style="text-decoration:none;cursor:pointer;color:#fff;">🗺️ Map</span>`:''}
         <span class="tcs" onclick="event.stopPropagation();editTrip('${t.id}')" style="text-decoration:none;cursor:pointer;color:#E07820;">Edit</span>
         <span class="tcs" onclick="event.stopPropagation();deleteTrip('${t.id}')" style="text-decoration:none;cursor:pointer;color:#E07820;">Delete</span>
       </div>
       <div class="trip-budget-row" id="tb-${t.id}" style="display:none;">
         <div id="tb-inner-${t.id}" style="font-size:12px;color:var(--brown-xl);">Loading…</div>
       </div>
+      <div class="trip-budget-row" id="tm-${t.id}" style="display:none;">
+        <div id="tm-map-${t.id}" style="height:180px;border-radius:12px;overflow:hidden;margin-top:4px;z-index:1;"></div>
+      </div>
     </div>`;
   }).join('');
 }
+const tripMapInstances={};
+function toggleTripMap(tripId,lat,lng){
+  const row=document.getElementById('tm-'+tripId);
+  if(!row)return;
+  if(row.style.display!=='none'){
+    row.style.display='none';
+    return;
+  }
+  row.style.display='block';
+  // If map already initialised for this trip, just invalidate size (handles display:none edge case)
+  if(tripMapInstances[tripId]){
+    setTimeout(()=>tripMapInstances[tripId].invalidateSize(),100);
+    return;
+  }
+  // Small delay to let the container render before Leaflet measures it
+  setTimeout(()=>{
+    const mapEl=document.getElementById('tm-map-'+tripId);
+    if(!mapEl)return;
+    const map=L.map(mapEl,{zoomControl:true,scrollWheelZoom:false,attributionControl:true}).setView([lat,lng],14);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+      attribution:'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+      maxZoom:19
+    }).addTo(map);
+    // Custom orange pin marker
+    const pinIcon=L.divIcon({
+      className:'',
+      html:`<div style="width:28px;height:28px;background:#E07820;border-radius:50% 50% 50% 0;transform:rotate(-45deg);border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.3);"></div>`,
+      iconSize:[28,28],
+      iconAnchor:[14,28]
+    });
+    L.marker([lat,lng],{icon:pinIcon}).addTo(map);
+    tripMapInstances[tripId]=map;
+  },120);
+}
+
 async function toggleTripBudget(tripId,budget){
   const row=document.getElementById('tb-'+tripId);
   const inner=document.getElementById('tb-inner-'+tripId);
