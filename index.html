@@ -221,7 +221,7 @@ body.dark .home-hero-wrap .hero-overlay{background:linear-gradient(180deg,rgba(0
 .trip-budget-bar.over{background:#C0392B;}
 .trip-budget-nums{display:flex;justify-content:space-between;font-size:11px;color:var(--brown-l);}
 .trip-budget-nums b{color:var(--brown);font-weight:700;}
-.tcs{font-size:11px;font-weight:600;color:#E07820;}
+.tcs{font-size:11px;font-weight:600;color:#fff;}
 .tcs strong{color:var(--brown);}
 body.dark .trip-card-name{color:#F0EEF8;}
 body.dark .trip-card-meta{color:#B0A8C8;}
@@ -1710,10 +1710,10 @@ function renderTrips(){
       <div class="trip-card-name">${esc(t.name)}</div>
       <div class="trip-card-meta">${dateLabel}${t.location?' · '+esc(t.location):''}</div>
       <div class="trip-card-stats">
-        <span class="tcs" onclick="event.stopPropagation();openTripPhotos('${t.id}')" style="text-decoration:underline;cursor:pointer;color:var(--green);display:inline-flex;align-items:center;gap:3px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg> Photos</span>
-        <span class="tcs" onclick="event.stopPropagation();toggleTripBudget('${t.id}',${t.budget||0})" style="text-decoration:underline;cursor:pointer;color:var(--green);">💰 Budget</span>
-        <span class="tcs" onclick="event.stopPropagation();editTrip('${t.id}')" style="text-decoration:underline;cursor:pointer;">Edit</span>
-        <span class="tcs" onclick="event.stopPropagation();deleteTrip('${t.id}')" style="text-decoration:underline;cursor:pointer;color:var(--red);">Delete</span>
+        <span class="tcs" onclick="event.stopPropagation();openTripPhotos('${t.id}')" style="text-decoration:none;cursor:pointer;display:inline-flex;align-items:center;gap:3px;color:#fff;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg> Photos</span>
+        <span class="tcs" onclick="event.stopPropagation();toggleTripBudget('${t.id}',${t.budget||0})" style="text-decoration:none;cursor:pointer;color:#fff;">💰 Budget</span>
+        <span class="tcs" onclick="event.stopPropagation();editTrip('${t.id}')" style="text-decoration:none;cursor:pointer;color:#E07820;">Edit</span>
+        <span class="tcs" onclick="event.stopPropagation();deleteTrip('${t.id}')" style="text-decoration:none;cursor:pointer;color:#E07820;">Delete</span>
       </div>
       <div class="trip-budget-row" id="tb-${t.id}" style="display:none;">
         <div id="tb-inner-${t.id}" style="font-size:12px;color:var(--brown-xl);">Loading…</div>
