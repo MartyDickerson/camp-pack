@@ -461,7 +461,7 @@ body:not(.dark) .tog{background:#C8BCE8;}
         <div class="hero-overlay-content">
           <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;">
             <div style="flex:1;min-width:0;">
-              <div class="hero-greeting" id="hero-greeting">GOOD MORNING 👋</div>
+              <div class="hero-greeting" id="hero-greeting">GOOD MORNING</div>
               <div class="hero-headline">Are You<br>Trip Ready?</div>
             </div>
             <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;flex-shrink:0;">
@@ -2497,18 +2497,23 @@ renderQuoteOfDay();
 
 function updateGreeting(){
   const h = new Date().getHours();
-  let text, emoji;
+  let text, icon;
+  const ic = (path,vb='0 0 24 24') => `<svg width="14" height="14" viewBox="${vb}" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-left:5px;">${path}</svg>`;
   if(h >= 5 && h < 12){
-    text = 'GOOD MORNING'; emoji = '☀️';
+    text = 'GOOD MORNING';
+    icon = ic('<circle cx="12" cy="12" r="5"/><line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="2" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>');
   } else if(h >= 12 && h < 17){
-    text = 'GOOD AFTERNOON'; emoji = '⛅';
+    text = 'GOOD AFTERNOON';
+    icon = ic('<circle cx="10" cy="13" r="4"/><path d="M6 10a4 4 0 0 1 4-4h0a4 4 0 0 1 4 4"/><path d="M16.5 10a3.5 3.5 0 1 1 0 7H5a3 3 0 1 1 0-6"/>');
   } else if(h >= 17 && h < 21){
-    text = 'GOOD EVENING'; emoji = '🌅';
+    text = 'GOOD EVENING';
+    icon = ic('<circle cx="12" cy="9" r="4"/><line x1="2" y1="15" x2="22" y2="15"/><polyline points="6 15 12 9 18 15"/>');
   } else {
-    text = 'GOOD NIGHT'; emoji = '🌙';
+    text = 'GOOD NIGHT';
+    icon = ic('<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>');
   }
   const el = document.getElementById('hero-greeting');
-  if(el) el.textContent = text + ' ' + emoji;
+  if(el) el.innerHTML = text + icon;
 }
 
 function updateClock(){
