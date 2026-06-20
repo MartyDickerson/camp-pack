@@ -666,12 +666,6 @@ body:not(.dark) .tog{background:#C8BCE8;}
         </div>
         <div class="prog" style="height:3px;border-radius:2px;"><div class="prog-bar" id="h-bar" style="width:0%"></div></div>
 
-        <!-- categories -->
-        <div style="margin-top:18px;">
-          <div class="section-hdr"><span class="s-title">Categories</span><span class="s-link" onclick="navTo('s-pack')">See all →</span></div>
-          <div class="cat-bubbles" id="home-cats"><div class="spinner"></div></div>
-        </div>
-
         <!-- templates teaser -->
         <div style="padding:0 16px;margin-top:14px;">
           <div style="background:var(--card-bg);border-radius:var(--r16);padding:14px 16px;box-shadow:var(--cs);display:flex;align-items:center;gap:12px;cursor:pointer;" onclick="navTo('s-templates')">
@@ -1313,14 +1307,6 @@ function getActiveTrip(){return trips.find(t=>t.id===activeTripId);}
 function renderHome(){
   syncStats();
   renderTripBanner();
-  const el=document.getElementById('home-cats');
-  if(!cats.length){el.innerHTML='<div class="spinner"></div>';return;}
-  el.innerHTML=cats.slice(0,5).map(c=>{
-    const ci=items.filter(x=>x.category_id===c.id);
-    return`<div class="cat-bubble" onclick="openDet('${c.id}')">
-      <div class="cb-icon-wrap">${c.icon||'📦'}${ci.length?`<span class="cb-badge">${ci.length}</span>`:''}
-      </div><div class="cb-name">${esc(c.name)}</div></div>`;
-  }).join('');
   // shopping teaser
   const toBuy=shopItems.filter(i=>!i.bought).length;
   const sub=document.getElementById('h-shop-sub');
