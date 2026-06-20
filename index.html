@@ -1293,9 +1293,10 @@ async function boot(){
     await loadTripItems();
     buildAddCatGrid();
     buildShCatGrid();
-    renderHome();
-    renderPack();
     checkAchievements();
+    // Transition to home screen - this triggers renderHome via navTo
+    navHistory=[];
+    navTo('s-home');
   }catch(e){toast('Failed to load: '+e.message);}
 }
 
@@ -2872,29 +2873,18 @@ async function enterAppAuthed(){
 }
 
 function enterApp(){
-  // Called by the splash "Time to Camp" button
-  if(appBooted){
-    // Already booted silently — just hide splash and go home
-    const splash=document.getElementById('s-splash');
-    if(splash)splash.style.display='none';
-    return;
-  }
+  if(appBooted)return;// Already booted silently — splash will have been hidden
   const splash=document.getElementById('s-splash');
   splash.style.transition='opacity 0.6s ease';
   splash.style.opacity='0';
   splash.style.pointerEvents='none';
   setTimeout(async()=>{
     splash.style.display='none';
-    // Check for existing session
     const hasSession=await loadSession();
     if(hasSession){
       document.getElementById('bnav').classList.remove('hidden');
       await boot();
       appBooted=true;
-      document.querySelectorAll('.screen').forEach(s=>{s.classList.remove('active');s.classList.remove('prev');});
-      document.getElementById('s-home').classList.add('active');
-      navHistory=['s-home'];
-      renderHome();renderPack();
     }else{
       navTo('s-auth');
     }
@@ -2916,11 +2906,6 @@ let appBooted=false;
     document.getElementById('bnav').classList.remove('hidden');
     await boot();
     appBooted=true;
-    // Directly activate home screen without pushing splash onto history
-    document.querySelectorAll('.screen').forEach(s=>{s.classList.remove('active');s.classList.remove('prev');});
-    document.getElementById('s-home').classList.add('active');
-    navHistory=['s-home'];
-    renderHome();renderPack();
   }
   // Otherwise splash screen stays active and user taps "Time to Camp"
 })();
