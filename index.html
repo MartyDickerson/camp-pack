@@ -495,7 +495,7 @@ body:not(.dark) .tog{background:#C8BCE8;}
 
     <!-- ══════ ONBOARDING ══════ -->
     <div class="screen s-onboard" id="s-onboard">
-      <div style="flex:1;display:flex;flex-direction:column;background:linear-gradient(180deg,#0B0820 0%,#1A1040 100%);overflow:hidden;">
+      <div style="flex:1;display:flex;flex-direction:column;background:linear-gradient(180deg,#0B0820 0%,#1A1040 100%);overflow-y:auto;-webkit-overflow-scrolling:touch;">
 
         <!-- progress dots -->
         <div style="display:flex;justify-content:center;gap:8px;padding:calc(env(safe-area-inset-top,20px) + 20px) 0 0;">
@@ -522,11 +522,11 @@ body:not(.dark) .tog{background:#C8BCE8;}
             </div>
             <div style="display:flex;align-items:center;gap:14px;background:rgba(255,255,255,0.08);border-radius:14px;padding:12px 16px;">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#E07820" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
-              <div><div style="font-size:13px;font-weight:700;color:#fff;">Shopping & budget</div><div style="font-size:11px;color:rgba(255,255,255,0.5);margin-top:2px;">Track what you need to buy</div></div>
+              <div><div style="font-size:13px;font-weight:700;color:#fff;">Shopping &amp; budget</div><div style="font-size:11px;color:rgba(255,255,255,0.5);margin-top:2px;">Track what you need to buy</div></div>
             </div>
             <div style="display:flex;align-items:center;gap:14px;background:rgba(255,255,255,0.08);border-radius:14px;padding:12px 16px;">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#E07820" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-              <div><div style="font-size:13px;font-weight:700;color:#fff;">Trip photos & memories</div><div style="font-size:11px;color:rgba(255,255,255,0.5);margin-top:2px;">Capture every adventure</div></div>
+              <div><div style="font-size:13px;font-weight:700;color:#fff;">Trip photos &amp; memories</div><div style="font-size:11px;color:rgba(255,255,255,0.5);margin-top:2px;">Capture every adventure</div></div>
             </div>
           </div>
         </div>
@@ -541,15 +541,14 @@ body:not(.dark) .tog{background:#C8BCE8;}
           <div id="ob-trip-error" style="display:none;color:#FF6B6B;font-size:12px;font-weight:600;margin-top:10px;"></div>
         </div>
 
-        <!-- nav buttons -->
-        <div style="padding:24px 28px calc(env(safe-area-inset-bottom,20px) + 24px);display:flex;flex-direction:column;gap:10px;align-items:stretch;">
+        <!-- nav buttons — always visible at bottom -->
+        <div style="flex-shrink:0;padding:24px 28px calc(env(safe-area-inset-bottom,20px) + 24px);display:flex;flex-direction:column;gap:10px;align-items:stretch;">
           <button id="ob-next-btn" onclick="obNext()" style="padding:16px;border:none;border-radius:14px;background:#E07820;color:#fff;font-size:16px;font-weight:800;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">Get Started</button>
           <button id="ob-skip-btn" onclick="obSkip()" style="padding:12px;border:none;background:transparent;color:rgba(255,255,255,0.4);font-size:13px;font-weight:600;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">Skip for now</button>
         </div>
 
       </div>
     </div>
-
 
       <!-- Hero photo scene -->
       <div class="home-hero-wrap">
@@ -2788,9 +2787,7 @@ async function signOut(){
   document.getElementById('auth-error').style.display='none';
   document.getElementById('auth-verify-msg').style.display='none';
   switchAuthTab('login');
-  // Show auth screen
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  document.getElementById('s-auth').classList.add('active');
+  navTo('s-auth');
 }
 
 /* ── ONBOARDING ── */
@@ -2879,8 +2876,7 @@ async function enterAppAuthed(){
   if(splash)splash.style.display='none';
   if(isNewUser()){
     // New user — show onboarding
-    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-    document.getElementById('s-onboard').classList.add('active');
+    navTo('s-onboard');
     obStep=0;
     obGoto(0);
     // Pre-load cats and templates in background while user reads onboarding
@@ -2912,8 +2908,7 @@ function enterApp(){
       navTo('s-home');
     }else{
       // Show auth screen
-      document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-      document.getElementById('s-auth').classList.add('active');
+      navTo('s-auth');
     }
   },600);
 }
