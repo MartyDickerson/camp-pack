@@ -19,9 +19,12 @@ html,body{height:100%;height:100dvh;background:#0A0818;font-family:'Plus Jakarta
 .sbar.on-green{color:#fff;}.sbar.on-cream{color:#3D2B1A;}
 .sb-r{display:flex;gap:5px;align-items:center;font-size:12px;}
 .screens{flex:1;position:relative;overflow:hidden;min-height:0;}
-.screen{position:absolute;inset:0;display:flex;flex-direction:column;opacity:0;pointer-events:none;transform:translateX(100%);transition:opacity 0.25s ease,transform 0.3s cubic-bezier(.4,0,.2,1);background:#F4F2FA;overflow:hidden;}
+.screen{position:absolute;inset:0;display:flex;flex-direction:column;opacity:0;pointer-events:none;transform:translateX(100%);transition:opacity 0.32s cubic-bezier(.4,0,.2,1),transform 0.32s cubic-bezier(.4,0,.2,1);background:#F4F2FA;overflow:hidden;will-change:transform,opacity;}
 .screen.active{opacity:1;pointer-events:all;transform:translateX(0);}
-.screen.prev{transform:translateX(-28%);opacity:0.4;}
+.screen.prev{transform:translateX(-22%);opacity:0;transition:opacity 0.32s cubic-bezier(.4,0,.2,1),transform 0.32s cubic-bezier(.4,0,.2,1);}
+.screen.slide-back{transform:translateX(-100%);}
+.screen.slide-back.active{transform:translateX(0);}
+.screen.prev-back{transform:translateX(20%);opacity:0;}
 .scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;}.scroll::-webkit-scrollbar{display:none;}
 .bnav{height:calc(68px + env(safe-area-inset-bottom,34px));background:#0E0B1E;border-radius:0;display:flex;align-items:flex-start;padding:10px 2px 0;padding-bottom:env(safe-area-inset-bottom,34px);box-shadow:0 -2px 16px rgba(0,0,0,0.08);flex-shrink:0;z-index:100;transition:transform 0.4s cubic-bezier(.4,0,.2,1),opacity 0.4s ease;}
 .bnav.hidden{transform:translateY(100%);opacity:0;pointer-events:none;}
@@ -1177,10 +1180,8 @@ function navTo(id,isBack){
   if(cur&&cur.id===id)return;
   if(cur && cur.id!=='s-splash'){
     if(isBack){
-      // going back: drop the current screen off the top of the stack
       if(navHistory[navHistory.length-1]===cur.id)navHistory.pop();
     }else{
-      // going forward: remember where we came from
       navHistory.push(cur.id);
     }
   }
@@ -1190,8 +1191,29 @@ function navTo(id,isBack){
   }
   const sb=document.getElementById('sbar');
   sb.className='sbar '+(SC_SBAR[id]||'on-cream');
-  if(cur){cur.classList.remove('active');cur.classList.add('prev');setTimeout(()=>cur.classList.remove('prev'),350);}
-  document.getElementById(id).classList.add('active');
+  const next=document.getElementById(id);
+  if(cur){
+    if(isBack){
+      // Back: current slides right off, incoming comes from left
+      cur.classList.remove('active');
+      cur.classList.add('prev-back');
+      next.classList.add('slide-back');
+      // Force reflow so starting position is rendered before transition
+      next.getBoundingClientRect();
+      next.classList.add('active');
+      next.classList.remove('slide-back');
+      setTimeout(()=>{cur.classList.remove('prev-back');},350);
+    }else{
+      // Forward: current slides left, incoming comes from right
+      cur.classList.remove('active');
+      cur.classList.add('prev');
+      next.getBoundingClientRect();
+      next.classList.add('active');
+      setTimeout(()=>{cur.classList.remove('prev');},350);
+    }
+  }else{
+    next.classList.add('active');
+  }
   document.querySelectorAll('.ni').forEach(b=>b.classList.remove('active'));
   const nb=SC_NAV[id];if(nb)document.getElementById(nb).classList.add('active');
   if(id!=='s-photo-view')document.getElementById('bnav').classList.remove('hidden');
