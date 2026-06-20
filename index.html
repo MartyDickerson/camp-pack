@@ -1313,6 +1313,7 @@ function renderHome(){
   syncStats();
   renderTripBanner();
   const el=document.getElementById('home-cats');
+  if(!cats.length){el.innerHTML='<div class="spinner"></div>';return;}
   el.innerHTML=cats.slice(0,5).map(c=>{
     const ci=items.filter(x=>x.category_id===c.id);
     return`<div class="cat-bubble" onclick="openDet('${c.id}')">
@@ -2846,25 +2847,8 @@ async function obSkip(){
 }
 async function finishOnboarding(){
   document.getElementById('bnav').classList.remove('hidden');
-  // Load full app data if not already loaded
-  if(!cats.length){
-    [cats,templates]=await Promise.all([
-      api('GET','categories?select=*&order=name.asc'),
-      api('GET','templates?select=*,template_items(*)&order=created_at.asc')
-    ]);
-  }
-  if(!trips.length){
-    trips=await api('GET','trips?select=*&order=created_at.asc');
-    if(!trips.length){
-      const[nt]=await api('POST','trips?select=*',{name:'My Camping Trip',is_active:true,user_id:currentUser.id});
-      trips=[nt];
-    }
-    activeTripId=trips.find(t=>t.is_active)?.id||trips[0].id;
-  }
-  await loadTripItems();
-  buildAddCatGrid();buildShCatGrid();
-  renderHome();renderPack();
-  checkAchievements();
+  // Always do a full boot to ensure all data is loaded cleanly
+  await boot();
   navTo('s-home');
 }
 function isNewUser(){
@@ -2879,11 +2863,6 @@ async function enterAppAuthed(){
     navTo('s-onboard');
     obStep=0;
     obGoto(0);
-    // Pre-load cats and templates in background while user reads onboarding
-    Promise.all([
-      api('GET','categories?select=*&order=name.asc'),
-      api('GET','templates?select=*,template_items(*)&order=created_at.asc')
-    ]).then(([c,t])=>{cats=c;templates=t;}).catch(()=>{});
   }else{
     // Returning user — go straight in
     document.getElementById('bnav').classList.remove('hidden');
