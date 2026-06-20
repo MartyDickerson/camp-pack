@@ -217,7 +217,13 @@ body.dark .home-hero-wrap .hero-overlay{background:linear-gradient(180deg,rgba(0
   background:var(--amber);padding:3px 9px;border-radius:10px;
 }
 .trip-card-stats{display:flex;align-items:center;gap:14px;margin-top:10px;flex-wrap:wrap;}
-.trip-budget-row{margin-top:10px;padding-top:10px;border-top:1px solid var(--hairline);}
+.wx-day{display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 6px;border-radius:10px;min-width:52px;flex-shrink:0;transition:background 0.15s;}
+.wx-day.trip-day{background:rgba(224,120,32,0.15);border:1.5px solid #E07820;}
+.wx-day-name{font-size:9px;font-weight:700;color:var(--brown-xl);text-transform:uppercase;letter-spacing:0.3px;}
+.wx-day-icon{font-size:18px;line-height:1;}
+.wx-day-hi{font-size:12px;font-weight:700;color:var(--brown);}
+.wx-day-lo{font-size:10px;color:var(--brown-xl);}
+.wx-day-rain{font-size:9px;font-weight:600;color:#E07820;}
 .leaflet-container{font-family:'Plus Jakarta Sans',sans-serif;border-radius:12px;}
 .leaflet-control-zoom{border:none!important;box-shadow:0 2px 8px rgba(0,0,0,0.2)!important;}
 .leaflet-control-zoom a{border-radius:8px!important;}
@@ -548,7 +554,12 @@ body:not(.dark) .tog{background:#C8BCE8;}
           </div>
         </div>
 
-        <!-- stat strip -->
+        <!-- 7-day forecast strip -->
+        <div id="wx-forecast-strip" style="display:none;padding:0 16px;margin-top:8px;">
+          <div style="background:var(--card-bg);border-radius:14px;padding:10px 4px;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+            <div id="wx-forecast-days" style="display:flex;overflow-x:auto;gap:2px;-ms-overflow-style:none;scrollbar-width:none;padding:0 8px;"></div>
+          </div>
+        </div>
         <div class="stat-strip">
           <div class="ss-item"><div class="ss-pct" id="h-pct">0%</div><div class="ss-l">Packed</div></div>
           <div class="ss-div"></div>
@@ -1705,6 +1716,47 @@ function renderWeather(data,trip){
     }
   }else{
     card.style.display='none';
+  }
+
+  // Render 7-day forecast strip (always shown when daily data is available)
+  renderForecastStrip(data,trip);
+}
+function renderForecastStrip(data,trip){
+  const strip=document.getElementById('wx-forecast-strip');
+  const container=document.getElementById('wx-forecast-days');
+  if(!strip||!container||!data.daily||!data.daily.time)return;
+  const today=new Date();today.setHours(0,0,0,0);
+  const days=data.daily.time;
+  // Show 7 days starting from today
+  const cells=[];
+  let scrollToIdx=0;
+  for(let i=0;i<Math.min(7,days.length);i++){
+    const dateStr=days[i];
+    const d=new Date(dateStr+'T00:00:00');
+    const isTripDay=trip&&trip.trip_date&&dateStr===trip.trip_date;
+    const isToday=d.getTime()===today.getTime();
+    const dayName=isToday?'Today':d.toLocaleDateString('en-US',{weekday:'short'});
+    const code=data.daily.weather_code[i];
+    const hi=Math.round(data.daily.temperature_2m_max[i]);
+    const lo=Math.round(data.daily.temperature_2m_min[i]);
+    const rain=data.daily.precipitation_probability_max[i];
+    if(isTripDay)scrollToIdx=i;
+    cells.push(`<div class="wx-day${isTripDay?' trip-day':''}" id="wx-day-${i}">
+      <div class="wx-day-name">${isTripDay?'Trip':dayName}</div>
+      <div class="wx-day-icon">${weatherEmoji(code)}</div>
+      <div class="wx-day-hi">${hi}°</div>
+      <div class="wx-day-lo">${lo}°</div>
+      ${rain>20?`<div class="wx-day-rain">${rain}%</div>`:'<div class="wx-day-rain" style="opacity:0;">0%</div>'}
+    </div>`);
+  }
+  container.innerHTML=cells.join('');
+  strip.style.display='block';
+  // Scroll trip day into view if it's not the first cell
+  if(scrollToIdx>2){
+    setTimeout(()=>{
+      const el=document.getElementById('wx-day-'+scrollToIdx);
+      if(el)el.scrollIntoView({behavior:'smooth',inline:'center',block:'nearest'});
+    },200);
   }
 }
 function daysUntil(dateStr){
