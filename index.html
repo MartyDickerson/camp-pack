@@ -310,11 +310,11 @@ body:not(.dark) .tog{background:#C8BCE8;}
 
 /* PACK LIST */
 .pl-title{font-size:22px;font-weight:800;color:var(--brown);letter-spacing:-0.4px;}
-.pl-sub{font-size:13px;color:var(--brown-xl);margin-top:2px;padding-bottom:12px;flex-shrink:0;}
-.pl-search{display:flex;align-items:center;gap:8px;background:var(--peach-d);border-radius:14px;padding:10px 14px;margin:0 0 12px;flex-shrink:0;}
+.pl-sub{font-size:13px;color:var(--brown-xl);margin-top:4px;}
+.pl-search{display:flex;align-items:center;gap:8px;background:var(--peach-d);border-radius:14px;padding:10px 14px;margin:0 0 10px;}
 .pl-search input{flex:1;border:none;background:transparent;font-family:'Plus Jakarta Sans',sans-serif;font-size:16px;color:var(--brown);outline:none;}
 .pl-search input::placeholder{color:var(--brown-xl);}
-.pl-chips{display:flex;gap:7px;overflow-x:auto;padding-bottom:14px;-ms-overflow-style:none;scrollbar-width:none;flex-shrink:0;}
+.pl-chips{display:flex;gap:7px;overflow-x:auto;padding-bottom:10px;-ms-overflow-style:none;scrollbar-width:none;}
 .pl-chips::-webkit-scrollbar{display:none;}
 .grp-hdr{display:flex;align-items:center;gap:8px;padding:16px 20px 8px;}
 .grp-icon{width:34px;height:34px;border-radius:11px;background:#E8F4EE;display:flex;align-items:center;justify-content:center;font-size:18px;}
@@ -822,12 +822,14 @@ body:not(.dark) .tog{background:#C8BCE8;}
 
     <!-- PACK LIST -->
     <div class="screen s-pack" id="s-pack">
-      <div class="screen-hdr-white">
+      <div class="screen-hdr-white" style="padding-bottom:12px;">
         <div style="display:flex;align-items:center;justify-content:space-between;">
           <div class="pl-title">Pack List</div>
           <button onclick="shareList()" style="background:var(--green-pale);border:none;border-radius:12px;width:38px;height:38px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--green);"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></button>
         </div>
         <div class="pl-sub" id="pl-sub">Loading…</div>
+      </div>
+      <div style="flex-shrink:0;padding:10px 16px 0;">
         <div class="pl-search"><span style="display:flex;align-items:center;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span><input type="text" placeholder="Search items…" id="pl-search" oninput="renderPack()"></div>
         <div class="pl-chips">
           <button class="pill pill-outline active" onclick="setFilter('all',this)">All</button>
@@ -836,7 +838,7 @@ body:not(.dark) .tog{background:#C8BCE8;}
           <button class="pill pill-outline" onclick="setFilter('essential',this)">★ Essential</button>
         </div>
       </div>
-      <div class="scroll"><div id="pl-list" style="padding-bottom:20px;"></div></div>
+      <div class="scroll"><div id="pl-list" style="padding:8px 0 20px;"></div></div>
     </div>
 
     <!-- ADD PACK ITEM -->
