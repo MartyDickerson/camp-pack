@@ -459,6 +459,36 @@ body:not(.dark) .tog{background:#C8BCE8;}
     </div>
 
     <!-- HOME -->
+    <!-- ══════ AUTH SCREEN ══════ -->
+    <div class="screen s-auth" id="s-auth">
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 28px;background:linear-gradient(180deg,#0B0820 0%,#1A1040 100%);">
+        <div style="margin-bottom:32px;text-align:center;">
+          <div style="font-size:48px;margin-bottom:12px;">⛺</div>
+          <div style="font-size:26px;font-weight:800;color:#fff;letter-spacing:-0.5px;">Camp Pack</div>
+          <div style="font-size:13px;color:rgba(255,255,255,0.5);margin-top:4px;">Your camping companion</div>
+        </div>
+
+        <!-- Tab switcher -->
+        <div style="display:flex;background:rgba(255,255,255,0.08);border-radius:12px;padding:3px;margin-bottom:24px;width:100%;">
+          <button id="auth-tab-login" onclick="switchAuthTab('login')" style="flex:1;padding:9px;border:none;border-radius:10px;background:#3D2A7A;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">Sign In</button>
+          <button id="auth-tab-signup" onclick="switchAuthTab('signup')" style="flex:1;padding:9px;border:none;border-radius:10px;background:transparent;color:rgba(255,255,255,0.5);font-size:13px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">Create Account</button>
+        </div>
+
+        <div style="width:100%;display:flex;flex-direction:column;gap:12px;">
+          <input id="auth-email" type="email" placeholder="Email address" autocomplete="email" style="width:100%;padding:14px 16px;border-radius:12px;border:2px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.08);color:#fff;font-size:15px;font-family:'Plus Jakarta Sans',sans-serif;outline:none;">
+          <input id="auth-password" type="password" placeholder="Password" autocomplete="current-password" style="width:100%;padding:14px 16px;border-radius:12px;border:2px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.08);color:#fff;font-size:15px;font-family:'Plus Jakarta Sans',sans-serif;outline:none;">
+          <div id="auth-error" style="display:none;color:#FF6B6B;font-size:12px;font-weight:600;text-align:center;padding:8px;background:rgba(255,80,80,0.1);border-radius:8px;"></div>
+          <button id="auth-btn" onclick="handleAuth()" style="width:100%;padding:16px;border:none;border-radius:14px;background:#E07820;color:#fff;font-size:16px;font-weight:800;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;margin-top:4px;">Sign In</button>
+        </div>
+
+        <div id="auth-verify-msg" style="display:none;margin-top:20px;text-align:center;padding:16px;background:rgba(255,255,255,0.06);border-radius:12px;">
+          <div style="font-size:28px;margin-bottom:8px;">📬</div>
+          <div style="font-size:14px;font-weight:700;color:#fff;">Check your email!</div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.6);margin-top:4px;">Click the link we sent to confirm your account, then sign in.</div>
+        </div>
+      </div>
+    </div>
+
     <div class="screen s-home" id="s-home">
       <!-- Hero photo scene -->
       <div class="home-hero-wrap">
@@ -471,7 +501,12 @@ body:not(.dark) .tog{background:#C8BCE8;}
               <div class="hero-headline">Are You<br>Trip Ready?</div>
             </div>
             <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;flex-shrink:0;">
-              <button class="theme-toggle" id="theme-toggle-btn" onclick="toggleTheme()">🌙</button>
+              <div style="display:flex;gap:6px;">
+                <button onclick="signOut()" style="background:rgba(255,255,255,0.12);border:none;border-radius:10px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;" title="Sign out">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                </button>
+                <button class="theme-toggle" id="theme-toggle-btn" onclick="toggleTheme()">🌙</button>
+              </div>
               <div id="hero-clock" style="text-align:right;">
                 <div id="hero-clock-time" style="font-size:26px;font-weight:800;color:#fff;letter-spacing:-0.5px;line-height:1;">--:--</div>
                 <div id="hero-clock-date" style="font-size:11px;font-weight:600;color:rgba(255,255,255,0.6);margin-top:4px;letter-spacing:0.3px;">---</div>
@@ -1058,11 +1093,70 @@ body:not(.dark) .tog{background:#C8BCE8;}
 <script>
 const SB='https://tbedgeiriemjnjymrtsl.supabase.co';
 const KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRiZWRnZWlyaWVtam5qeW1ydHNsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE0NzM5MDAsImV4cCI6MjA5NzA0OTkwMH0.Xp07gPk3eA-WzMOUsopvAbGKt3X4lWSUQaGsgcqDNyI';
-const H={'apikey':KEY,'Authorization':'Bearer '+KEY,'Content-Type':'application/json','Prefer':'return=representation'};
+
+/* ── AUTH STATE ── */
+let currentUser=null;
+let currentToken=null;
+
+function getAuthHeaders(){
+  return {
+    'apikey':KEY,
+    'Authorization':'Bearer '+(currentToken||KEY),
+    'Content-Type':'application/json',
+    'Prefer':'return=representation'
+  };
+}
+// Keep H as a compat alias (used in storage upload fetches)
+const H={get apikey(){return KEY;},get Authorization(){return 'Bearer '+(currentToken||KEY);},'Content-Type':'application/json','Prefer':'return=representation'};
+
 async function api(m,p,b){
-  const r=await fetch(SB+'/rest/v1/'+p,{method:m,headers:H,body:b?JSON.stringify(b):undefined});
+  const r=await fetch(SB+'/rest/v1/'+p,{method:m,headers:getAuthHeaders(),body:b?JSON.stringify(b):undefined});
   if(!r.ok)throw new Error(await r.text());
   return r.status===204?null:r.json();
+}
+
+/* ── SUPABASE AUTH CALLS ── */
+async function authSignUp(email,password){
+  const r=await fetch(`${SB}/auth/v1/signup`,{method:'POST',headers:{'apikey':KEY,'Content-Type':'application/json'},body:JSON.stringify({email,password})});
+  const d=await r.json();
+  if(!r.ok)throw new Error(d.error_description||d.msg||'Sign up failed');
+  return d;
+}
+async function authSignIn(email,password){
+  const r=await fetch(`${SB}/auth/v1/token?grant_type=password`,{method:'POST',headers:{'apikey':KEY,'Content-Type':'application/json'},body:JSON.stringify({email,password})});
+  const d=await r.json();
+  if(!r.ok)throw new Error(d.error_description||d.msg||'Sign in failed');
+  return d;
+}
+async function authRefresh(refresh_token){
+  const r=await fetch(`${SB}/auth/v1/token?grant_type=refresh_token`,{method:'POST',headers:{'apikey':KEY,'Content-Type':'application/json'},body:JSON.stringify({refresh_token})});
+  const d=await r.json();
+  if(!r.ok)throw new Error('Session expired');
+  return d;
+}
+async function authSignOut(){
+  try{await fetch(`${SB}/auth/v1/logout`,{method:'POST',headers:{'apikey':KEY,'Authorization':'Bearer '+(currentToken||KEY)}});}catch(e){}
+  currentUser=null;currentToken=null;
+  try{localStorage.removeItem('cp_session');}catch(e){}
+}
+function saveSession(session){
+  currentToken=session.access_token;
+  currentUser=session.user;
+  try{localStorage.setItem('cp_session',JSON.stringify({access_token:session.access_token,refresh_token:session.refresh_token,user:session.user}));}catch(e){}
+}
+async function loadSession(){
+  try{
+    const raw=localStorage.getItem('cp_session');
+    if(!raw)return false;
+    const s=JSON.parse(raw);
+    // Try refreshing the token (access tokens expire in 1hr)
+    const refreshed=await authRefresh(s.refresh_token);
+    saveSession(refreshed);
+    return true;
+  }catch(e){
+    try{localStorage.removeItem('cp_session');}catch(e2){}
+    return false;
+  }
 }
 
 let cats=[],items=[],shopItems=[],pFilter='all',shFilter='all';
@@ -1073,7 +1167,7 @@ let trips=[],activeTripId=null,editingTripId=null;
 let templates=[],templateItemsCache={};
 let tripPhotos=[],viewingTripId=null,selectedTripPhotoFile=null,selectedTripPhotoType='photo',viewingPhotoId=null;
 
-const SC_SBAR={'s-splash':'on-green','s-home':'on-green','s-stats':'on-green','s-shop':'on-green','s-add':'on-cream','s-add-shop':'on-cream'};
+const SC_SBAR={'s-splash':'on-green','s-auth':'on-green','s-home':'on-green','s-stats':'on-green','s-shop':'on-green','s-add':'on-cream','s-add-shop':'on-cream'};
 const SC_NAV={'s-home':'ni-home','s-pack':'ni-pack','s-stats':'ni-stats','s-shop':'ni-shop'};
 
 function onFab(){
@@ -1132,7 +1226,7 @@ async function boot(){
       api('GET','templates?select=*,template_items(*)&order=created_at.asc')
     ]);
     if(!trips.length){
-      const[nt]=await api('POST','trips?select=*',{name:'My Camping Trip',is_active:true});
+      const[nt]=await api('POST','trips?select=*',{name:'My Camping Trip',is_active:true,user_id:currentUser.id});
       trips=[nt];
     }
     activeTripId = trips.find(t=>t.is_active)?.id || trips[0].id;
@@ -1142,7 +1236,6 @@ async function boot(){
     renderHome();
     renderPack();
     checkAchievements();
-
   }catch(e){toast('Failed to load: '+e.message);}
 }
 
@@ -1341,7 +1434,7 @@ async function saveShopItem(){
   const btn=document.getElementById('sh-btn-add');btn.disabled=true;
   try{
     const[ni]=await api('POST','shopping_list?select=*,categories(name,icon)',{
-      name,store,price,quantity:shQty,category_id:shCatId||null,notes,bought:false,trip_id:activeTripId
+      name,store,price,quantity:shQty,category_id:shCatId||null,notes,bought:false,trip_id:activeTripId,user_id:currentUser.id
     });
     shopItems.unshift(ni);
     renderShop();renderHome();
@@ -1897,7 +1990,7 @@ async function checkAchievements(){
     if(document.body.classList.contains('dark') && !earnedBadgeKeys.has('dark_mode'))newlyEarned.push('dark_mode');
 
     for(const key of newlyEarned){
-      await api('POST','achievements',{badge_key:key});
+      await api('POST','achievements',{badge_key:key,user_id:currentUser.id});
       earnedBadgeKeys.add(key);
     }
   }catch(e){/* non-fatal; achievements are a bonus layer */}
@@ -1905,7 +1998,7 @@ async function checkAchievements(){
 async function unlockAchievement(key){
   if(earnedBadgeKeys.has(key))return;
   try{
-    await api('POST','achievements',{badge_key:key});
+    await api('POST','achievements',{badge_key:key,user_id:currentUser.id});
     earnedBadgeKeys.add(key);
   }catch(e){/* ignore duplicate/conflict errors */}
 }
@@ -2050,7 +2143,7 @@ async function saveTrip(){
       if(idx>=0)trips[idx]=ut;
       toast('Trip updated!');
     }else{
-      const[nt]=await api('POST','trips?select=*',{name,trip_date,location,latitude,longitude,budget,is_active:false});
+      const[nt]=await api('POST','trips?select=*',{name,trip_date,location,latitude,longitude,budget,is_active:false,user_id:currentUser.id});
       trips.push(nt);
       toast('Trip created!');
     }
@@ -2230,7 +2323,7 @@ async function useTemplate(id){
   try{
     const payload=tplItems.map(ti=>({
       name:ti.name,category_id:ti.category_id,quantity:ti.quantity||1,
-      essential:ti.essential||false,packed:false,trip_id:activeTripId
+      essential:ti.essential||false,packed:false,trip_id:activeTripId,user_id:currentUser.id
     }));
     const created=await api('POST','items?select=*,categories(name,icon)',payload);
     items=[...created,...items];
@@ -2336,7 +2429,7 @@ async function saveTripPhoto(){
   try{
     toast(mediaType==='video'?'Uploading video…':'Uploading photo…');
     const photo_url=await uploadTripPhoto(selectedTripPhotoFile);
-    const[np]=await api('POST','trip_photos?select=*',{trip_id:targetTripId,photo_url,caption,media_type:mediaType});
+    const[np]=await api('POST','trip_photos?select=*',{trip_id:targetTripId,photo_url,caption,media_type:mediaType,user_id:currentUser.id});
     // only reflect in current grid if it belongs to the trip currently being viewed
     if(targetTripId===viewingTripId){
       tripPhotos.unshift(np);
@@ -2580,25 +2673,114 @@ function updateClock(){
   if(dateEl) dateEl.textContent = now.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
 }
 
-function enterApp(){
+/* ── AUTH UI ── */
+let authMode='login';
+function switchAuthTab(mode){
+  authMode=mode;
+  const isLogin=mode==='login';
+  document.getElementById('auth-tab-login').style.background=isLogin?'#3D2A7A':'transparent';
+  document.getElementById('auth-tab-login').style.color=isLogin?'#fff':'rgba(255,255,255,0.5)';
+  document.getElementById('auth-tab-signup').style.background=isLogin?'transparent':'#3D2A7A';
+  document.getElementById('auth-tab-signup').style.color=isLogin?'rgba(255,255,255,0.5)':'#fff';
+  document.getElementById('auth-btn').textContent=isLogin?'Sign In':'Create Account';
+  document.getElementById('auth-error').style.display='none';
+  document.getElementById('auth-verify-msg').style.display='none';
+  document.getElementById('auth-password').setAttribute('autocomplete',isLogin?'current-password':'new-password');
+}
+async function handleAuth(){
+  const email=document.getElementById('auth-email').value.trim();
+  const password=document.getElementById('auth-password').value;
+  const errEl=document.getElementById('auth-error');
+  const btn=document.getElementById('auth-btn');
+  errEl.style.display='none';
+  if(!email||!password){errEl.textContent='Please enter your email and password.';errEl.style.display='block';return;}
+  btn.disabled=true;btn.textContent='Please wait…';
+  try{
+    if(authMode==='signup'){
+      await authSignUp(email,password);
+      document.getElementById('auth-verify-msg').style.display='block';
+      btn.textContent='Create Account';
+      toast('Check your email to confirm your account!');
+    }else{
+      const session=await authSignIn(email,password);
+      saveSession(session);
+      await enterAppAuthed();
+    }
+  }catch(e){
+    errEl.textContent=e.message;
+    errEl.style.display='block';
+    btn.textContent=authMode==='login'?'Sign In':'Create Account';
+  }finally{
+    btn.disabled=false;
+  }
+}
+
+async function signOut(){
+  if(!confirm('Sign out of Camp Pack?'))return;
+  await authSignOut();
+  // Reset all app state
+  cats=[];items=[];shopItems=[];trips=[];activeTripId=null;editingTripId=null;
+  templates=[];tripPhotos=[];navHistory=['s-home'];
+  document.getElementById('bnav').classList.add('hidden');
+  document.getElementById('auth-email').value='';
+  document.getElementById('auth-password').value='';
+  document.getElementById('auth-error').style.display='none';
+  document.getElementById('auth-verify-msg').style.display='none';
+  switchAuthTab('login');
+  // Show auth screen
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('s-auth').classList.add('active');
+}
+
+async function enterAppAuthed(){
+  // Hide splash + auth, show nav, go to home
   const splash=document.getElementById('s-splash');
-  // Show nav + sbar first
+  splash.style.display='none';
   document.getElementById('bnav').classList.remove('hidden');
-  // sbar hidden on real device
-  // Fade splash out
+  await boot();
+  navTo('s-home');
+}
+
+function enterApp(){
+  // Called by the splash "Time to Camp" button
+  const splash=document.getElementById('s-splash');
   splash.style.transition='opacity 0.6s ease';
   splash.style.opacity='0';
   splash.style.pointerEvents='none';
-  setTimeout(()=>{
+  setTimeout(async()=>{
     splash.style.display='none';
-    navTo('s-home');
+    // Check for existing session
+    const hasSession=await loadSession();
+    if(hasSession){
+      document.getElementById('bnav').classList.remove('hidden');
+      await boot();
+      navTo('s-home');
+    }else{
+      // Show auth screen
+      document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+      document.getElementById('s-auth').classList.add('active');
+    }
   },600);
 }
-boot();
-updateGreeting();
-setInterval(updateGreeting, 60000);
-updateClock();
-setInterval(updateClock, 1000);
+
+// On initial page load, try to restore session silently (skip splash if already authed)
+(async()=>{
+  updateGreeting();
+  setInterval(updateGreeting,60000);
+  updateClock();
+  setInterval(updateClock,1000);
+  // Try silent session restore — if it works, skip splash entirely
+  const hasSession=await loadSession();
+  if(hasSession){
+    const splash=document.getElementById('s-splash');
+    if(splash)splash.style.display='none';
+    document.getElementById('bnav').classList.remove('hidden');
+    await boot();
+    navTo('s-home');
+  }
+  // Otherwise splash screen stays active and user taps "Time to Camp"
+})();
+
 </script>
 </body>
 </html>
