@@ -263,10 +263,6 @@ body:not(.dark) .tog{background:#C8BCE8;}
 .template-desc{font-size:12px;color:var(--brown-xl);margin-top:3px;}
 .template-count{font-size:11px;font-weight:600;color:var(--amber-l);margin-top:8px;}
 
-.ob-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,0.2);transition:all 0.3s;}
-.ob-dot.active{width:24px;border-radius:4px;background:#E07820;}
-.ob-slide{display:none;flex:1;flex-direction:column;align-items:center;justify-content:center;padding:32px 28px;text-align:center;}
-.ob-slide.active{display:flex;}
 /* achievements */
 .ach-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;}
 .ach-badge{background:var(--card-bg);border-radius:16px;padding:16px 12px;text-align:center;box-shadow:var(--cs);}
@@ -493,63 +489,9 @@ body:not(.dark) .tog{background:#C8BCE8;}
       </div>
     </div>
 
-    <!-- ══════ ONBOARDING ══════ -->
-    <div class="screen s-onboard" id="s-onboard">
-      <div style="flex:1;display:flex;flex-direction:column;background:linear-gradient(180deg,#0B0820 0%,#1A1040 100%);overflow-y:auto;-webkit-overflow-scrolling:touch;">
 
-        <!-- progress dots -->
-        <div style="display:flex;justify-content:center;gap:8px;padding:calc(env(safe-area-inset-top,20px) + 20px) 0 0;">
-          <div class="ob-dot active" id="ob-dot-0"></div>
-          <div class="ob-dot" id="ob-dot-1"></div>
-          <div class="ob-dot" id="ob-dot-2"></div>
-        </div>
-
-        <!-- slide 0: welcome -->
-        <div class="ob-slide active" id="ob-slide-0">
-          <div style="font-size:64px;margin-bottom:20px;">⛺</div>
-          <div style="font-size:26px;font-weight:800;color:#fff;line-height:1.2;margin-bottom:12px;">Welcome to<br>Camp Pack</div>
-          <div style="font-size:15px;color:rgba(255,255,255,0.6);line-height:1.6;max-width:280px;">Your all-in-one camping companion for packing lists, trip planning, shopping, photos and more.</div>
-        </div>
-
-        <!-- slide 1: what you can do -->
-        <div class="ob-slide" id="ob-slide-1">
-          <div style="font-size:64px;margin-bottom:20px;">🗺️</div>
-          <div style="font-size:26px;font-weight:800;color:#fff;line-height:1.2;margin-bottom:20px;">Everything in<br>one place</div>
-          <div style="display:flex;flex-direction:column;gap:12px;width:100%;max-width:300px;">
-            <div style="display:flex;align-items:center;gap:14px;background:rgba(255,255,255,0.08);border-radius:14px;padding:12px 16px;">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#E07820" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-              <div><div style="font-size:13px;font-weight:700;color:#fff;">Smart packing lists</div><div style="font-size:11px;color:rgba(255,255,255,0.5);margin-top:2px;">Never forget an essential again</div></div>
-            </div>
-            <div style="display:flex;align-items:center;gap:14px;background:rgba(255,255,255,0.08);border-radius:14px;padding:12px 16px;">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#E07820" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
-              <div><div style="font-size:13px;font-weight:700;color:#fff;">Shopping &amp; budget</div><div style="font-size:11px;color:rgba(255,255,255,0.5);margin-top:2px;">Track what you need to buy</div></div>
-            </div>
-            <div style="display:flex;align-items:center;gap:14px;background:rgba(255,255,255,0.08);border-radius:14px;padding:12px 16px;">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#E07820" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-              <div><div style="font-size:13px;font-weight:700;color:#fff;">Trip photos &amp; memories</div><div style="font-size:11px;color:rgba(255,255,255,0.5);margin-top:2px;">Capture every adventure</div></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- slide 2: create first trip -->
-        <div class="ob-slide" id="ob-slide-2">
-          <div style="font-size:64px;margin-bottom:16px;">🏕️</div>
-          <div style="font-size:26px;font-weight:800;color:#fff;line-height:1.2;margin-bottom:8px;">Name your<br>first trip</div>
-          <div style="font-size:14px;color:rgba(255,255,255,0.55);margin-bottom:24px;">You can always edit this later</div>
-          <input id="ob-trip-name" type="text" placeholder="e.g. Summer Camping Trip" maxlength="60"
-            style="width:100%;max-width:300px;padding:16px 18px;border-radius:14px;border:2px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.08);color:#fff;font-size:16px;font-family:'Plus Jakarta Sans',sans-serif;outline:none;text-align:center;">
-          <div id="ob-trip-error" style="display:none;color:#FF6B6B;font-size:12px;font-weight:600;margin-top:10px;"></div>
-        </div>
-
-        <!-- nav buttons — always visible at bottom -->
-        <div style="flex-shrink:0;padding:24px 28px calc(env(safe-area-inset-bottom,20px) + 24px);display:flex;flex-direction:column;gap:10px;align-items:stretch;">
-          <button id="ob-next-btn" onclick="obNext()" style="padding:16px;border:none;border-radius:14px;background:#E07820;color:#fff;font-size:16px;font-weight:800;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">Get Started</button>
-          <button id="ob-skip-btn" onclick="obSkip()" style="padding:12px;border:none;background:transparent;color:rgba(255,255,255,0.4);font-size:13px;font-weight:600;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">Skip for now</button>
-        </div>
-
-      </div>
-    </div>
-
+    <!-- ══════ HOME ══════ -->
+    <div class="screen s-home" id="s-home">
       <!-- Hero photo scene -->
       <div class="home-hero-wrap">
         <div class="hero-nature"></div>
@@ -1221,7 +1163,7 @@ let trips=[],activeTripId=null,editingTripId=null;
 let templates=[],templateItemsCache={};
 let tripPhotos=[],viewingTripId=null,selectedTripPhotoFile=null,selectedTripPhotoType='photo',viewingPhotoId=null;
 
-const SC_SBAR={'s-splash':'on-green','s-auth':'on-green','s-onboard':'on-green','s-home':'on-green','s-stats':'on-green','s-shop':'on-green','s-add':'on-cream','s-add-shop':'on-cream'};
+const SC_SBAR={'s-splash':'on-green','s-auth':'on-green','s-home':'on-green','s-stats':'on-green','s-shop':'on-green','s-add':'on-cream','s-add-shop':'on-cream'};
 const SC_NAV={'s-home':'ni-home','s-pack':'ni-pack','s-stats':'ni-stats','s-shop':'ni-shop'};
 
 function onFab(){
@@ -2752,7 +2694,8 @@ async function handleAuth(){
     }else{
       const session=await authSignIn(email,password);
       saveSession(session);
-      await enterAppAuthed();
+      document.getElementById('bnav').classList.remove('hidden');
+      await boot();
     }
   }catch(e){
     errEl.textContent=e.message;
@@ -2766,7 +2709,6 @@ async function handleAuth(){
 async function signOut(){
   if(!confirm('Sign out of Camp Pack?'))return;
   await authSignOut();
-  // Reset all app state
   cats=[];items=[];shopItems=[];trips=[];activeTripId=null;editingTripId=null;
   templates=[];tripPhotos=[];navHistory=['s-home'];
   document.getElementById('bnav').classList.add('hidden');
@@ -2778,88 +2720,7 @@ async function signOut(){
   navTo('s-auth');
 }
 
-/* ── ONBOARDING ── */
-let obStep=0;
-const OB_STEPS=3;
-function obGoto(step){
-  obStep=step;
-  document.querySelectorAll('.ob-slide').forEach((s,i)=>{
-    s.classList.toggle('active',i===step);
-  });
-  document.querySelectorAll('.ob-dot').forEach((d,i)=>{
-    d.classList.toggle('active',i===step);
-  });
-  const nextBtn=document.getElementById('ob-next-btn');
-  const skipBtn=document.getElementById('ob-skip-btn');
-  if(step===0){nextBtn.textContent='Get Started';skipBtn.style.display='block';}
-  else if(step===1){nextBtn.textContent='Next';skipBtn.style.display='block';}
-  else{nextBtn.textContent='Create My Trip';skipBtn.style.display='block';skipBtn.textContent='Skip — I\'ll add a trip later';}
-  if(step===2){
-    setTimeout(()=>{
-      const inp=document.getElementById('ob-trip-name');
-      if(inp)inp.focus();
-    },300);
-  }
-}
-async function obNext(){
-  if(obStep<2){obGoto(obStep+1);return;}
-  // Final step — create the trip
-  const nameEl=document.getElementById('ob-trip-name');
-  const errEl=document.getElementById('ob-trip-error');
-  const name=(nameEl.value||'').trim();
-  if(!name){
-    errEl.textContent='Please give your trip a name.';
-    errEl.style.display='block';
-    nameEl.focus();
-    return;
-  }
-  errEl.style.display='none';
-  const btn=document.getElementById('ob-next-btn');
-  btn.disabled=true;btn.textContent='Creating…';
-  try{
-    const[nt]=await api('POST','trips?select=*',{name,is_active:true,user_id:currentUser.id});
-    trips=[nt];
-    activeTripId=nt.id;
-    try{localStorage.setItem('cp_onboarded','1');}catch(e){}
-    await finishOnboarding();
-  }catch(e){
-    errEl.textContent='Could not create trip: '+e.message;
-    errEl.style.display='block';
-    btn.disabled=false;btn.textContent='Create My Trip';
-  }
-}
-async function obSkip(){
-  try{localStorage.setItem('cp_onboarded','1');}catch(e){}
-  await finishOnboarding();
-}
-async function finishOnboarding(){
-  document.getElementById('bnav').classList.remove('hidden');
-  // Always do a full boot to ensure all data is loaded cleanly
-  await boot();
-  navTo('s-home');
-}
-function isNewUser(){
-  try{return !localStorage.getItem('cp_onboarded');}catch(e){return false;}
-}
-
-async function enterAppAuthed(){
-  const splash=document.getElementById('s-splash');
-  if(splash)splash.style.display='none';
-  if(isNewUser()){
-    // New user — show onboarding
-    navTo('s-onboard');
-    obStep=0;
-    obGoto(0);
-  }else{
-    // Returning user — go straight in
-    document.getElementById('bnav').classList.remove('hidden');
-    await boot();
-    navTo('s-home');
-  }
-}
-
 function enterApp(){
-  if(appBooted)return;// Already booted silently — splash will have been hidden
   const splash=document.getElementById('s-splash');
   splash.style.transition='opacity 0.6s ease';
   splash.style.opacity='0';
@@ -2870,30 +2731,29 @@ function enterApp(){
     if(hasSession){
       document.getElementById('bnav').classList.remove('hidden');
       await boot();
-      appBooted=true;
     }else{
       navTo('s-auth');
     }
   },600);
 }
 
-// On initial page load, try to restore session silently (skip splash if already authed)
+// On page load: try silent session restore
 let appBooted=false;
 (async()=>{
+  initTheme();
   updateGreeting();
   setInterval(updateGreeting,60000);
   updateClock();
   setInterval(updateClock,1000);
-  // Try silent session restore — if it works, skip splash entirely
   const hasSession=await loadSession();
   if(hasSession){
     const splash=document.getElementById('s-splash');
-    if(splash){splash.style.display='none';}
+    if(splash)splash.style.display='none';
     document.getElementById('bnav').classList.remove('hidden');
     await boot();
     appBooted=true;
   }
-  // Otherwise splash screen stays active and user taps "Time to Camp"
+  // else: splash stays, user taps "Time to Camp"
 })();
 
 </script>
