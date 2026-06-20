@@ -2873,6 +2873,12 @@ async function enterAppAuthed(){
 
 function enterApp(){
   // Called by the splash "Time to Camp" button
+  if(appBooted){
+    // Already booted silently — just hide splash and go home
+    const splash=document.getElementById('s-splash');
+    if(splash)splash.style.display='none';
+    return;
+  }
   const splash=document.getElementById('s-splash');
   splash.style.transition='opacity 0.6s ease';
   splash.style.opacity='0';
@@ -2884,15 +2890,19 @@ function enterApp(){
     if(hasSession){
       document.getElementById('bnav').classList.remove('hidden');
       await boot();
-      navTo('s-home');
+      appBooted=true;
+      document.querySelectorAll('.screen').forEach(s=>{s.classList.remove('active');s.classList.remove('prev');});
+      document.getElementById('s-home').classList.add('active');
+      navHistory=['s-home'];
+      renderHome();renderPack();
     }else{
-      // Show auth screen
       navTo('s-auth');
     }
   },600);
 }
 
 // On initial page load, try to restore session silently (skip splash if already authed)
+let appBooted=false;
 (async()=>{
   updateGreeting();
   setInterval(updateGreeting,60000);
@@ -2902,10 +2912,15 @@ function enterApp(){
   const hasSession=await loadSession();
   if(hasSession){
     const splash=document.getElementById('s-splash');
-    if(splash)splash.style.display='none';
+    if(splash){splash.style.display='none';}
     document.getElementById('bnav').classList.remove('hidden');
     await boot();
-    navTo('s-home');
+    appBooted=true;
+    // Directly activate home screen without pushing splash onto history
+    document.querySelectorAll('.screen').forEach(s=>{s.classList.remove('active');s.classList.remove('prev');});
+    document.getElementById('s-home').classList.add('active');
+    navHistory=['s-home'];
+    renderHome();renderPack();
   }
   // Otherwise splash screen stays active and user taps "Time to Camp"
 })();
