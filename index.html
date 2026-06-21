@@ -247,9 +247,9 @@ body:not(.dark) .cat-opt{background:#EDE8F8;border-color:#C8BCE8;}
 body:not(.dark) .cat-opt.sel{background:#3D2A7A;border-color:#E07820;}
 body:not(.dark) .cat-opt.sel .co-name{color:#fff;}
 body:not(.dark) .co-name{color:#3D2A7A;}
-body:not(.dark) .ess-row{background:#EDE8F8;border-color:#C8BCE8;}
-body:not(.dark) .er-main{color:#1A1030;}
-body:not(.dark) .er-sub{color:#5A5070;}
+body:not(.dark) .ess-row{background:#EDE8F8!important;border-color:#C8BCE8!important;}
+body:not(.dark) .er-main{color:#1A1030!important;}
+body:not(.dark) .er-sub{color:#5A5070!important;}
 body:not(.dark) .qty-step{background:#EDE8F8;border-color:#C8BCE8;}
 body:not(.dark) .qs-sep{background:#C8BCE8;}
 body:not(.dark) .tog{background:#C8BCE8;}
@@ -871,7 +871,7 @@ body:not(.dark) .tog{background:#C8BCE8;}
         <!-- Photo upload -->
         <div class="fgrp">
           <label class="fl">Photo (optional)</label>
-          <div id="photo-upload-zone" onclick="document.getElementById('photo-input').click()" style="border:2px dashed #DDD0C0;border-radius:14px;padding:20px;text-align:center;cursor:pointer;background:#FEFAF5;">
+          <div id="photo-upload-zone" onclick="document.getElementById('photo-input').click()" style="border:2px dashed var(--hairline);border-radius:14px;padding:20px;text-align:center;cursor:pointer;background:var(--card-bg);">
             <div id="photo-preview-wrap" style="display:none;margin-bottom:10px;">
               <img id="photo-preview" style="max-width:100%;max-height:140px;border-radius:10px;object-fit:cover;">
             </div>
@@ -1493,7 +1493,7 @@ async function uploadPhoto(file){
   const fileName=`item-${Date.now()}-${Math.random().toString(36).slice(2,8)}.${ext}`;
   const res=await fetch(`${SB}/storage/v1/object/item-photos/${fileName}`,{
     method:'POST',
-    headers:{'apikey':KEY,'Authorization':'Bearer '+KEY,'Content-Type':file.type},
+    headers:{'apikey':KEY,'Authorization':'Bearer '+(currentToken||KEY),'Content-Type':file.type},
     body:file
   });
   if(!res.ok)throw new Error('Photo upload failed');
@@ -1519,7 +1519,7 @@ async function saveItem(){
       toast('Uploading photo…');
       photo_url=await uploadPhoto(selectedPhotoFile);
     }
-    const[ni]=await api('POST','items?select=*,categories(name,icon)',{name,category_id:addCatId||null,quantity:addQty,essential:addEss,packed:false,notes:notes||null,trip_id:activeTripId,photo_url});
+    const[ni]=await api('POST','items?select=*,categories(name,icon)',{name,category_id:addCatId||null,quantity:addQty,essential:addEss,packed:false,notes:notes||null,trip_id:activeTripId,photo_url,user_id:currentUser.id});
     items.unshift(ni);renderHome();renderPack();syncStats();
     toast('✓ '+name+' added!');navTo('s-pack');
   }catch(e){toast('Error: '+e.message);}
@@ -2431,7 +2431,7 @@ async function uploadTripPhoto(file){
   const fileName=`trip-${Date.now()}-${Math.random().toString(36).slice(2,8)}.${ext}`;
   const res=await fetch(`${SB}/storage/v1/object/trip-photos/${fileName}`,{
     method:'POST',
-    headers:{'apikey':KEY,'Authorization':'Bearer '+KEY,'Content-Type':file.type},
+    headers:{'apikey':KEY,'Authorization':'Bearer '+(currentToken||KEY),'Content-Type':file.type},
     body:file
   });
   if(!res.ok)throw new Error('Upload failed');
